@@ -511,7 +511,7 @@
     err.textContent = '';
     const hash = await sha256(input.value.trim());
     if (hash === HASH) {
-      sessionStorage.setItem(KEY, 'ok');
+      localStorage.setItem(KEY, 'ok');
       showDashboard();
     } else {
       input.classList.add('error');
@@ -522,11 +522,11 @@
     }
   }
 
-  if (sessionStorage.getItem(KEY) === 'ok') { showDashboard(); }
+  if (localStorage.getItem(KEY) === 'ok') { showDashboard(); }
 
   document.getElementById('login-btn').addEventListener('click', doLogin);
   document.getElementById('pw-input').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
-  document.getElementById('signout-btn').addEventListener('click', () => { sessionStorage.removeItem(KEY); showLogin(); });
+  document.getElementById('signout-btn').addEventListener('click', () => { localStorage.removeItem(KEY); showLogin(); });
 </script>
 </body>
 </html>
