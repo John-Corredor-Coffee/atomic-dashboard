@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Onboarding 411 — Atomic Coffee Roasters</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --teal:    #6BD9D6;
+    --teal-dk: #3DADA9;
+    --teal-lt: #E8FAF9;
+    --black:   #0a0a0a;
+    --text:    #2c2c2c;
+    --muted:   rgba(0,0,0,0.42);
+    --border:  #e5e5e2;
+    --bg:      #f5f5f0;
+    --white:   #ffffff;
+    --red:     #FF595B;
+    --red-lt:  #fff0f0;
+    --green:   #1a7a4a;
+    --green-lt:#e6f9f0;
+  }
+  body {
+    font-family: 'Outfit', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* ── TOP BAR ── */
+  .topbar {
+    background: var(--black);
+    color: white;
+    padding: 10px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .topbar-brand { display: flex; align-items: center; gap: 10px; }
+  .topbar-dot {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--teal);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 9px; font-weight: 800; color: var(--black); letter-spacing: 0.3px;
+    flex-shrink: 0;
+  }
+  .topbar-title { font-size: 14px; font-weight: 800; letter-spacing: -0.01em; }
+  .topbar-sub   { font-size: 9px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.45); margin-top: 1px; }
+  .topbar-note  { font-size: 10px; font-weight: 600; color: rgba(255,255,255,0.4); letter-spacing: 0.04em; }
+
+  /* ── STICKY MODULE NAV ── */
+  .module-nav {
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    padding: 0 32px;
+    overflow-x: auto;
+    white-space: nowrap;
+    position: sticky; top: 0; z-index: 50;
+    scrollbar-width: none;
+  }
+  .module-nav::-webkit-scrollbar { display: none; }
+  .module-nav-inner { display: flex; gap: 0; height: 46px; align-items: stretch; }
+  .module-nav a {
+    display: flex; align-items: center; gap: 6px;
+    padding: 0 16px;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.04em;
+    text-decoration: none; color: var(--muted);
+    border-bottom: 2px solid transparent;
+    transition: color 0.15s, border-color 0.15s;
+    white-space: nowrap;
+  }
+  .module-nav a:hover { color: var(--black); border-bottom-color: var(--teal); }
+  .module-nav a .num {
+    width: 18px; height: 18px; border-radius: 4px;
+    background: var(--bg); font-size: 9px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--muted);
+    flex-shrink: 0;
+  }
+
+  /* ── LAYOUT ── */
+  .layout { max-width: 980px; margin: 0 auto; padding: 40px 24px 100px; display: flex; flex-direction: column; gap: 20px; }
+
+  .page-header { margin-bottom: 12px; }
+  .page-header h1 { font-size: 28px; font-weight: 800; color: var(--black); letter-spacing: -0.02em; margin-bottom: 6px; }
+  .page-header p  { font-size: 13px; color: var(--muted); max-width: 560px; line-height: 1.65; }
+
+  /* ── MODULE CARD ── */
+  .module {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .module-header {
+    display: flex; align-items: center; gap: 14px;
+    padding: 18px 24px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .module-num {
+    width: 34px; height: 34px; border-radius: 8px;
+    background: var(--black);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 800; color: var(--white);
+    flex-shrink: 0;
+  }
+  .module-num.teal { background: var(--teal); color: var(--black); }
+  .module-title-block { flex: 1; }
+  .module-title { font-size: 16px; font-weight: 800; color: var(--black); letter-spacing: -0.01em; line-height: 1.2; }
+  .module-subtitle { font-size: 11px; color: var(--muted); margin-top: 2px; font-weight: 600; }
+  .module-tags { display: flex; gap: 5px; flex-wrap: wrap; }
+  .tag {
+    font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+    padding: 3px 9px; border-radius: 20px; white-space: nowrap;
+  }
+  .tag-all   { background: var(--teal-lt); color: var(--teal-dk); }
+  .tag-local { background: #eef6ff; color: #2563b0; }
+  .tag-ship  { background: #f5eeff; color: #6d28d9; }
+  .tag-esp   { background: #fff4ec; color: #b45309; }
+  .tag-drip  { background: #f0fdf4; color: var(--green); }
+  .tag-new   { background: var(--green-lt); color: var(--green); }
+
+  /* ── MODULE BODY ── */
+  .module-body { padding: 22px 24px; }
+  .module-body.two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  /* ── EMAIL BLOCK ── */
+  .email-block {
+    background: #fafaf8;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .email-header {
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    padding: 8px 14px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .email-subject { font-size: 10.5px; font-weight: 700; color: var(--black); }
+  .email-label   { font-size: 9px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  .email-body {
+    padding: 14px 16px;
+    font-size: 12.5px;
+    line-height: 1.72;
+    color: var(--text);
+  }
+  .email-body p { margin-bottom: 10px; }
+  .email-body p:last-child { margin-bottom: 0; }
+  .fill { color: var(--teal-dk); font-weight: 700; }
+  .email-sig { color: var(--muted); font-size: 12px; }
+
+  /* ── CALLOUT / TIP ── */
+  .callout {
+    background: var(--red-lt); border-left: 3px solid var(--red);
+    border-radius: 6px; padding: 10px 14px;
+    font-size: 12px; line-height: 1.55; color: var(--text);
+    margin-top: 14px;
+  }
+  .callout strong { color: var(--red); }
+  .tip {
+    background: var(--teal-lt); border-left: 3px solid var(--teal-dk);
+    border-radius: 6px; padding: 10px 14px;
+    font-size: 12px; line-height: 1.55; color: var(--text);
+    margin-top: 14px;
+  }
+  .tip strong { color: var(--teal-dk); }
+
+  /* ── CHECKLIST ── */
+  .checklist { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+  .check-item { display: flex; align-items: flex-start; gap: 10px; font-size: 13px; line-height: 1.5; }
+  .check-box {
+    width: 18px; height: 18px; border: 1.5px solid var(--border);
+    border-radius: 4px; flex-shrink: 0; margin-top: 2px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .check-box.done { background: var(--teal); border-color: var(--teal); }
+  .check-box.done::after { content: '✓'; font-size: 10px; font-weight: 800; color: white; }
+
+  /* ── CUTOFF TABLE ── */
+  .cutoff-table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-top: 8px; }
+  .cutoff-table th {
+    background: var(--black); color: white;
+    padding: 7px 12px; text-align: left;
+    font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 700;
+  }
+  .cutoff-table th:first-child { border-radius: 6px 0 0 0; }
+  .cutoff-table th:last-child  { border-radius: 0 6px 0 0; }
+  .cutoff-table td { padding: 8px 12px; border-bottom: 1px solid var(--border); }
+  .cutoff-table tr:last-child td { border-bottom: none; }
+  .cutoff-table tr:nth-child(even) td { background: #fafaf8; }
+  .cutoff-table .day { font-weight: 700; color: var(--black); }
+  .cutoff-table .cutoff { color: var(--teal-dk); font-weight: 700; }
+
+  /* ── RESOURCE ROW ── */
+  .resource-list { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+  .resource-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 14px;
+    background: #fafaf8; border: 1px solid var(--border); border-radius: 8px;
+  }
+  .res-icon {
+    width: 32px; height: 32px; border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; flex-shrink: 0;
+  }
+  .res-icon.teal { background: var(--teal-lt); }
+  .res-icon.red  { background: var(--red-lt); }
+  .res-icon.gray { background: var(--bg); }
+  .res-title { font-size: 13px; font-weight: 700; color: var(--black); }
+  .res-sub   { font-size: 11px; color: var(--muted); }
+  .res-badge {
+    margin-left: auto; font-size: 9px; font-weight: 700;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    padding: 3px 8px; border-radius: 20px;
+    flex-shrink: 0;
+  }
+  .res-badge.pdf  { background: var(--red-lt); color: #b33; }
+  .res-badge.link { background: var(--teal-lt); color: var(--teal-dk); }
+
+  /* ── SECTION LABEL ── */
+  .section-label {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--muted);
+    margin-bottom: 10px; padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* ── WHEN TO SEND STRIP ── */
+  .send-strip {
+    background: var(--bg);
+    border-top: 1px solid var(--border);
+    padding: 10px 24px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .send-label { font-size: 9.5px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); flex-shrink: 0; }
+  .send-note  { font-size: 11.5px; color: var(--text); }
+
+  @media (max-width: 680px) {
+    .module-body.two-col { grid-template-columns: 1fr; }
+    .module-header { flex-wrap: wrap; gap: 10px; }
+    .layout { padding: 24px 16px 80px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-brand">
+    <div class="topbar-dot">ACR</div>
+    <div>
+      <div class="topbar-title">Onboarding 411</div>
+      <div class="topbar-sub">Atomic Coffee Roasters · Wholesale</div>
+    </div>
+  </div>
+  <div class="topbar-note">Internal reference — modular, mix &amp; match by account type</div>
+</div>
+
+<div class="module-nav">
+  <div class="module-nav-inner">
+    <a href="#m1a"><span class="num">1A</span> Portal · Local</a>
+    <a href="#m1b"><span class="num">1B</span> Portal · Ship</a>
+    <a href="#m2"><span class="num">2</span> Cutoffs</a>
+    <a href="#m3"><span class="num">3</span> PAR Ordering</a>
+    <a href="#m4"><span class="num">4</span> Cold Brew</a>
+    <a href="#m5"><span class="num">5</span> Equipment</a>
+    <a href="#m6"><span class="num">6</span> Training</a>
+    <a href="#m7"><span class="num">7</span> Resources</a>
+    <a href="#m8"><span class="num">8</span> Cleaning</a>
+    <a href="#m9"><span class="num">9</span> Support</a>
+  </div>
+</div>
+
+<div class="layout">
+
+  <div class="page-header">
+    <h1>Onboarding 411</h1>
+    <p>Each module is standalone — pick the ones that apply and drop them into a single email or send separately over the first few weeks. Tags show which account types each module targets.</p>
+  </div>
+
+  <!-- ══════════ MODULE 1A ══════════ -->
+  <div class="module" id="m1a">
+    <div class="module-header">
+      <div class="module-num teal">1A</div>
+      <div class="module-title-block">
+        <div class="module-title">Portal Setup — Local Delivery</div>
+        <div class="module-subtitle">First email after Shopify upload · send with B2B portal invite</div>
+      </div>
+      <div class="module-tags">
+        <span class="tag tag-local">Local DLV</span>
+        <span class="tag tag-new">Day 1</span>
+      </div>
+    </div>
+    <div class="module-body">
+      <div class="email-block">
+        <div class="email-header">
+          <span class="email-subject">You're all set on the Atomic Wholesale Portal!</span>
+          <span class="email-label">Template 1A</span>
+        </div>
+        <div class="email-body">
+          <p>Hi <span class="fill">[Name]</span>,</p>
+          <p>I just finished setting you up on the wholesale portal and sent you an invite from it! Please note the URL is different from our main website, and your credentials with wholesale discount will only work on the wholesale side. I recommend bookmarking the portal so it's easy to find: <strong>serveatomiccoffee.com</strong></p>
+          <p>As a reminder, your delivery day is <span class="fill">[delivery day]</span> each week. Since we roast everything to order, we will need orders submitted on the portal by <span class="fill">[cutoff day]</span> EOD. You can certainly send orders through earlier than that as well!</p>
+          <p>If you ever have questions about specific orders, please send a note to <strong>orders@atomicroastery.com</strong> — that goes to a team-monitored inbox.</p>
+          <p>Let me know if you have any questions or need any assistance with this!</p>
+          <p class="email-sig">All my best,<br>John</p>
+        </div>
+      </div>
+      <div class="tip"><strong>Fill-ins:</strong> [Name] · [delivery day] · [cutoff day] — check Mapline for delivery day by address.</div>
+    </div>
+    <div class="send-strip">
+      <span class="send-label">When to send</span>
+      <span class="send-note">Same day as shopify-upload skill + B2B portal invite. Pair with Module 2 (Cutoffs) for new accounts who have never ordered before.</span>
+    </div>
+  </div>
+
+  <!-- ══════════ MODULE 1B ══════════ -->
+  <div class="module" id="m1b">
+    <div class="module-header">
+      <div class="module-num teal">1B</div>
+      <div class="module-title-block">
+        <div class="module-title">Portal Setup — Ship Account</div>
+        <div class="module-subtitle">First email after Shopify upload · ship accounts only</div>
+      </div>
+      <div class="module-tags">
+        <span class="tag tag-ship">Ship</span>
+        <span class="tag tag-new">Day 1</span>
+      </div>
+    </div>
+    <div class="module-body">
+      <div class="email-block">
+        <div class="email-header">
+          <span class="email-subject">You're all set on the Atomic Wholesale Portal!</span>
+          <span class="email-label">Template 1B</span>
+        </div>
+        <div class="email-body">
+          <p>Hi <span class="fill">[Name]</span>,</p>
+          <p>I just finished setting you up on the wholesale portal and sent you an invite from it! Please note the URL is different from our main website, and your credentials with wholesale discount will only work on the wholesale side. I recommend bookmarking the portal so it's easy to find: <strong>serveatomiccoffee.com</strong></p>
+          <p>If your coffee orders end up being over $300, they will qualify for free UPS ground shipping. As a reminder, the cold brew concentrate is excluded from this, as we ship it packed with insulation and cold packs. The best practice for ordering cold brew + minimizing shipping costs is to order it separately from the beans, tea, and filters.</p>
+          <p>If you ever have questions about a specific order or need to make a change, the best email to reach us at is <strong>orders@atomicroastery.com</strong> — that inbox is managed by several people so we can get eyes on things quickly.</p>
+          <p>Let me know if you have any questions!</p>
+          <p class="email-sig">Best,<br>John</p>
+        </div>
+      </div>
+      <div class="tip"><strong>Fill-ins:</strong> [Name] only. Cold brew shipping note is built in — don't remove it, it preempts one of the most common tickets.</div>
+    </div>
+    <div class="send-strip">
+      <span class="send-label">When to send</span>
+      <span class="send-note">Same day as shopify-upload. Pair with Module 4 (Cold Brew) if they ordered cold brew on their first order.</span>
+    </div>
+  </div>
+
+  <!-- ══════════ MODULE 2 ══════════ -->
+  <div class="module" id="m2">
+    <div class="module-header">
+      <div class="module-num">2</div>
+      <div class="module-title-block">
+        <div class="module-title">Order Cutoff Schedule</div>
+        <div class="module-subtitle">Standalone reference card — paste into any email or send on its own</div>
+      </div>
+      <div class="module-tags">
+        <span class="tag tag-all">All accounts</span>
+        <span class="tag tag-local">Local DLV</span>
+      </div>
+    </div>
+    <div class="module-body two-col">
+      <div>
+        <div class="section-label">Cutoff Schedule</div>
+        <table class="cutoff-table">
+          <thead>
+            <tr><th>Delivery Day</th><th>Order by (EOD)</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="day">Monday</td><td class="cutoff">Wednesday</td></tr>
+            <tr><td class="day">Tuesday</td><td class="cutoff">Thursday</td></tr>
+            <tr><td class="day">Wednesday</td><td class="cutoff">Sunday</td></tr>
+            <tr><td class="day">Thursday</td><td class="cutoff">Monday</td></tr>
+            <tr><td class="day">Friday</td><td class="cutoff">Tuesday</td></tr>
+          </tbody>
+        </table>
+        <div class="tip" style="margin-top:12px"><strong>Tip to share:</strong> Set a weekly recurring calendar event the day before your cutoff with a link to the portal in the event details — makes it easy to remember without thinking about it.</div>
+      </div>
+      <div>
+        <div class="section-label">Email snippet</div>
+        <div class="email-block">
+          <div class="email-body" style="font-size:12px;">
+            <p>As a reminder, your order cutoff for <span class="fill">[delivery day]</span> delivery is <span class="fill">[cutoff day]</span> EOD. The easiest way to place orders is through the portal at <strong>serveatomiccoffee.com</strong> — drop a note in the comments for any special requests and our team will see it. For anything time-sensitive, reach us at <strong>orders@atomicroastery.com</strong>.</p>
+          </div>
+        </div>
+        <div class="callout" style="margin-top:12px"><strong>Note:</strong> Wednesday delivery accounts have a Sunday EOD cutoff — accounts often miss this one. Make sure to call it out explicitly on the first onboarding email.</div>
+      </div>
+    </div>
+    <div class="send-strip">
+      <span class="send-label">When to send</span>
+      <span class="send-note">Include in Module 1A. Also use as a standalone reply for late-order tickets or any time an account emails an order directly.</span>
+    </div>
+  </div>
+
+  <!-- ══════════ MODULE 3 ══════════ -->
+  <div class="module" id="m3">
+    <div class="module-header">
+      <div class="module-num">3</div>
+      <div class="module-title-block">
+        <div class="module-title">PAR Ordering</div>
+        <div class="module-subtitle">Send around Week 2 once they've placed their first order</div>
+      </div>
+      <div class="module-tags">
+        <span class="tag tag-all">All accounts</span>
+      </div>
+    </div>
+    <div class="module-body two-col">
+      <div>
+        <div class="section-label">What to tell them</div>
+        <div class="email-block">
+          <div class="email-body" style="font-size:12px;">
+            <p>Hi <span class="fill">[Name]</span>,</p>
+            <p>Hope things are running smoothly! I wanted to share a tool a lot of our accounts have found helpful — our <strong>PAR Ordering Tool</strong>.</p>
+            <p>It tracks what you're going through each week by product so you always know exactly what to order and when. Once it's dialed in, it takes the guesswork out completely. You can access it here: <strong>john-corredor-coffee.github.io/atomic-par-ordering/</strong></p>
+            <p>Password: <span class="fill">[par-tool-password]</span></p>
+            <p>Let me know if you have any questions getting it set up!</p>
+            <p class="email-sig">All my best,<br>John</p>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="section-label">What the PAR Tool does</div>
+        <div class="checklist">
+          <div class="check-item"><div class="check-box done"></div><span>308 active accounts pre-loaded — account is already in the tool</span></div>
+          <div class="check-item"><div class="check-box done"></div><span>Weekly usage tracking per SKU (bags, cans, kegs, cold brew)</span></div>
+          <div class="check-item"><div class="check-box done"></div><span>Reorder point calculator — set a PAR level, get a reminder quantity</span></div>
+          <div class="check-item"><div class="check-box done"></div><span>Data refreshed weekly from Shopify order history</span></div>
+        </div>
+        <div class="tip" style="margin-top:14px"><strong>Best time to introduce:</strong> After their second or third order — they have enough data to make the tool useful right away.</div>
+      </div>
+    </div>
+    <div class="send-strip">
+      <span class="send-label">When to send</span>
+      <span class="send-note">Week 2 or 3. Especially valuable for high-volume cafes and restaurant groups placing multi-SKU orders.</span>
+    </div>
+  </div>
+
+  <!-- ══════════ MODULE 4 ══════════ -->
+  <div class="module" id="m4">
+    <div class="module-header">
+      <div class="module-num">4</div>
+      <div class="module-title-block">
+        <div class="module-title">Cold Brew &amp; Shipping Rules</div>
+        <div class="module-subtitle">Critical for ship accounts — prevents the #1 cold brew shipping ticket</div>
+      </div>
+      <div class="module-tags">
+        <span class="tag tag-ship">Ship</span>
+      </div>
+    </div>
+    <div class="module-body">
+      <div class="email-block">
+        <div class="email-header">
+          <span class="email-subject">Quick note on ordering Cold Brew + saving on shipping</span>
+          <span class="email-label">Snippet</span>
+        </div>
+        <div class="email-body">
+          <p>One thing worth flagging before your first order: if your total is <strong>over $300</strong>, coffee beans, tea, and filters ship free via UPS ground — but the <strong>Cold Brew Concentrate is excluded</strong> from free shipping since it ships packed with insulation and cold packs.</p>
+          <p>The best practice is to order Cold Brew separately from everything else. That way you only pay the cold-pack shipping on the cold brew itself and keep the rest of your order free.</p>
+          <p>Everything is on the portal at <strong>serveatomiccoffee.com</strong> — you can place two separate carts to keep them split.</p>
+        </div>
+      </div>
+      <div class="callout" style="margin-top:14px"><strong>Don't skip this module for ship accounts.</strong> Cold brew shipping confusion is one of the most common new-account tickets — this single paragraph deflects most of them.</div>
+    </div>
+    <div class="send-strip">
+      <span class="send-label">When to send</span>
+      <span class="send-note">Include in Module 1B for any ship account that carries cold brew. Can also be a standalone reply when they first ask about shipping charges.</span>
+    </div>
+  </div>
+
+  <!-- ══════════ MODULE 5 ══════════ -->
+  <div class="module" id="m5">
+    <div class="module-header">
+      <div class="module-num">5</div>
+      <div class="module-title-block">
+        <div class="module-title">Equipment &amp; Espresso Quality</div>
+        <div class="module-subtitle">For espresso-based accounts — dial-in help + equipment support contact</div>
+      </div>
+      <div class="module-tags">
+        <span class="tag tag-esp">Espresso</span>
+      </div>
+    </div>
+    <div class="module-body two-col">
+      <div>
+        <div class="section-label">Troubleshooting snippet</div>
+        <div class="email-block">
+          <div class="email-body" style="font-size:12px;">
+            <p>A few things worth going through if you're dialing in:</p>
+            <p><strong>1. Grind size</strong> — too fine = over-extracted (bitter). Too coarse = under-extracted (sour, weak). Adjust one click at a time.</p>
+            <p><strong>2. Distribution</strong> — a quick Stockfleth's move before tamping helps prevent channeling.</p>
+            <p><strong>3. Tamp consistency</strong> — aim for level and firm (~30 lbs) every time. An angled tamp is one of the most common culprits.</p>
+            <p>If you're having recurring consistency issues, the <strong>BOSeTamper ($325)</strong> is available on the portal — it self-levels automatically and is a solid alternative to a Puq Press (~$900+).</p>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="section-label">Support contacts</div>
+        <div class="checklist">
+          <div class="check-item">
+            <div class="check-box done"></div>
+            <div><strong>Cleaning questions → John</strong><br><span style="font-size:12px;color:var(--muted)">techservices@atomicroastery.com</span></div>
+          </div>
+          <div class="check-item">
+            <div class="check-box done"></div>
+            <div><strong>Equipment service → Chelsi</strong><br><span style="font-size:12px;color:var(--muted)">techservices@atomicroastery.com</span></div>
+          </div>
+          <div class="check-item">
+            <div class="check-box done"></div>
+            <div><strong>Order questions → orders@atomicroastery.com</strong></div>
+          </div>
+        </div>
+        <div class="tip" style="margin-top:14px"><strong>Ask for a photo or video</strong> of the full pull process before diagnosing remotely — it cuts troubleshooting in half.</div>
+      </div>
+    </div>
+    <div class="send-strip">
+      <span class="send-label">When to send</span>
+      <span class="send-note">Include in the Week 1 resources email for any espresso account. Also use as a standalone reply for shot quality or consistency tickets.</span>
+    </div>
+  </div>
+
+  <!-- ══════════ MODULE 6 ══════════ -->
+  <div class="module" id="m6">
+    <div class="module-header">
+      <div class="module-num">6</div>
+      <div class="module-title-block">
+        <div class="module-title">Barista Training</div>
+        <div class="module-subtitle">Invite to sign up — at the roastery or on-site</div>
+      </div>
+      <div class="module-tags">
+        <span class="tag tag-all">All accounts</span>
+        <span class="tag tag-esp">Espresso</span>
+      </div>
+    </div>
+    <div class="module-body two-col">
+      <div>
+        <div class="section-label">Training CTA snippet</div>
+        <div class="email-block">
+          <div class="email-body" style="font-size:12px;">
+            <p>If a <strong>barista training session</strong> would be helpful at any point — whether here at the roastery or on-site at your location — just fill out this quick form and we'll get something on the calendar:</p>
+            <p style="text-align:center; margin: 14px 0;"><strong>john-corredor-coffee.github.io/atomic-wholesale-training/</strong></p>
+            <p>We cover everything from dialing in your grind and recipe, to milk technique and consistency habits that translate day-to-day. Most sessions run 1.5–2 hours.</p>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="section-label">Training workflow</div>
+        <div class="checklist">
+          <div class="check-item"><div class="check-box done"></div><span>Account fills out training form (public link above)</span></div>
+          <div class="check-item"><div class="check-box done"></div><span>Appears in Training Requests sheet</span></div>
+          <div class="check-item"><div class="check-box done"></div><span>Run coordinate-training skill to group + propose dates</span></div>
+          <div class="check-item"><div class="check-box done"></div><span>Account confirms → run schedule-training skill → calendar invite sent</span></div>
+        </div>
+        <div class="tip" style="margin-top:14px"><strong>Best timing:</strong> Include in the Week 1 resources email. Accounts that go through training have noticeably fewer equipment quality tickets down the road.</div>
+      </div>
+    </div>
+    <div class="send-strip">
+      <span class="send-label">When to send</span>
+      <span class="send-note">Include in Week 1 resources email (Module 7) for all espresso accounts. Standalone for any account mentioning quality issues or a new barista joining their team.</span>
+    </div>
+  </div>
+
+  <!-- ══════════ MODULE 7 ══════════ -->
+  <div class="module" id="m7">
+    <div class="module-header">
+      <div class="module-num">7</div>
+      <div class="module-title-block">
+        <div class="module-title">Resources Pack</div>
+        <div class="module-subtitle">Week 1 follow-up — attach the relevant docs for their account type</div>
+      </div>
+      <div class="module-tags">
+        <span class="tag tag-all">All accounts</span>
+        <span class="tag tag-new">Week 1</span>
+      </div>
+    </div>
+    <div class="module-body two-col">
+      <div>
+        <div class="section-label">Email (Template 6 basis)</div>
+        <div class="email-block">
+          <div class="email-body" style="font-size:12px;">
+            <p>Hi <span class="fill">[Name]</span>,</p>
+            <p>Hope you're settling in nicely with everything! I wanted to follow up with a few resources that should be helpful as you get up and running.</p>
+            <p><strong>Attached:</strong><br>
+            — <strong>Menu Pricing Sheet</strong> — your coffee costs and suggested retail margins are already built in.<br>
+            — <strong>PAR Ordering Form</strong> — helps you track what you're going through each week.<br>
+            — <strong>Equipment Cleaning Guide</strong> — step-by-step for keeping your equipment clean.</p>
+            <p>If a <strong>barista training session</strong> would be helpful, let me know and we can get something on the calendar!</p>
+            <p class="email-sig">All my best,<br>John</p>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="section-label">Attach based on account type</div>
+        <div class="resource-list">
+          <div class="resource-row">
+            <div class="res-icon red">💰</div>
+            <div><div class="res-title">Menu Pricing Sheet</div><div class="res-sub">All accounts — customize retail margin col</div></div>
+            <span class="res-badge pdf">PDF</span>
+          </div>
+          <div class="resource-row">
+            <div class="res-icon teal">📦</div>
+            <div><div class="res-title">PAR Ordering Tool</div><div class="res-sub">All accounts — link to GitHub Pages tool</div></div>
+            <span class="res-badge link">Link</span>
+          </div>
+          <div class="resource-row">
+            <div class="res-icon teal">🧹</div>
+            <div><div class="res-title">Equipment Cleaning Guide</div><div class="res-sub">Espresso + drip accounts</div></div>
+            <span class="res-badge pdf">PDF</span>
+          </div>
+          <div class="resource-row">
+            <div class="res-icon gray">📖</div>
+            <div><div class="res-title">Barista Training Manual</div><div class="res-sub">Espresso accounts — after first session</div></div>
+            <span class="res-badge pdf">PDF</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="send-strip">
+      <span class="send-label">When to send</span>
+      <span class="send-note">3–5 days after portal setup. Gives them time to place a first order before sending resource overload on Day 1.</span>
+    </div>
+  </div>
+
+  <!-- ══════════ MODULE 8 ══════════ -->
+  <div class="module" id="m8">
+    <div class="module-header">
+      <div class="module-num">8</div>
+      <div class="module-title-block">
+        <div class="module-title">Equipment Cleaning SOPs</div>
+        <div class="module-subtitle">PDF handout — Urnex guide for espresso, grinder, batch brewer, Marco Pour'd</div>
+      </div>
+      <div class="module-tags">
+        <span class="tag tag-esp">Espresso</span>
+        <span class="tag tag-drip">Batch Brew</span>
+      </div>
+    </div>
+    <div class="module-body">
+      <div class="resource-list">
+        <div class="resource-row">
+          <div class="res-icon teal">🧹</div>
+          <div>
+            <div class="res-title">Urnex Equipment Cleaning Guide</div>
+            <div class="res-sub">2-page PDF · Espresso machine (Cafiza), Steam wand (Rinza), Grinder (Grindz), Batch brewer (Cleancaf), Marco Pour'd (Cafiza) · Daily / Weekly / Monthly cadence</div>
+          </div>
+          <span class="res-badge pdf">PDF</span>
+        </div>
+      </div>
+      <div class="two-col" style="margin-top:16px; display:grid; grid-template-columns:1fr 1fr; gap:14px;">
+        <div class="tip"><strong>Cleaning questions → John</strong> at techservices@atomicroastery.com</div>
+        <div class="tip"><strong>Equipment service → Chelsi</strong> at techservices@atomicroastery.com</div>
+      </div>
+    </div>
+    <div class="send-strip">
+      <span class="send-label">When to send</span>
+      <span class="send-note">Include in Module 7 resources pack for espresso and batch brew accounts. Also use as a standalone reply for any equipment cleaning question.</span>
+    </div>
+  </div>
+
+  <!-- ══════════ MODULE 9 ══════════ -->
+  <div class="module" id="m9">
+    <div class="module-header">
+      <div class="module-num">9</div>
+      <div class="module-title-block">
+        <div class="module-title">Escalation &amp; Support</div>
+        <div class="module-subtitle">Who to contact and how — include in any onboarding combo</div>
+      </div>
+      <div class="module-tags">
+        <span class="tag tag-all">All accounts</span>
+      </div>
+    </div>
+    <div class="module-body two-col">
+      <div>
+        <div class="section-label">Contact routing</div>
+        <div class="checklist">
+          <div class="check-item">
+            <div class="check-box done"></div>
+            <div><strong>Order questions / changes</strong><br><span style="font-size:12px;color:var(--muted)">orders@atomicroastery.com — team-monitored, fastest response</span></div>
+          </div>
+          <div class="check-item">
+            <div class="check-box done"></div>
+            <div><strong>Cleaning help</strong><br><span style="font-size:12px;color:var(--muted)">John · techservices@atomicroastery.com</span></div>
+          </div>
+          <div class="check-item">
+            <div class="check-box done"></div>
+            <div><strong>Equipment service / repairs</strong><br><span style="font-size:12px;color:var(--muted)">Chelsi · techservices@atomicroastery.com</span></div>
+          </div>
+          <div class="check-item">
+            <div class="check-box done"></div>
+            <div><strong>Wholesale portal access issues</strong><br><span style="font-size:12px;color:var(--muted)">John — reply directly or email john.corredor@atomicroastery.com</span></div>
+          </div>
+          <div class="check-item">
+            <div class="check-box done"></div>
+            <div><strong>Product info / upsells / events</strong><br><span style="font-size:12px;color:var(--muted)">John — first point of contact for all wholesale partners</span></div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="section-label">Snippet to include</div>
+        <div class="email-block">
+          <div class="email-body" style="font-size:12px;">
+            <p>A quick guide on the best way to reach us:</p>
+            <p><strong>Orders &amp; fulfillment:</strong> orders@atomicroastery.com — monitored by several people, fastest way to flag something time-sensitive.</p>
+            <p><strong>Equipment &amp; cleaning:</strong> techservices@atomicroastery.com — John handles cleaning, Chelsi handles equipment service.</p>
+            <p><strong>Everything else:</strong> Reply directly to this email and I'll get you sorted.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="send-strip">
+      <span class="send-label">When to send</span>
+      <span class="send-note">Always include in the Module 7 resources pack. Can also be sent standalone if an account is confused about who to contact for a specific issue.</span>
+    </div>
+  </div>
+
+</div><!-- end layout -->
+
+<script>
+  // Highlight active nav item on scroll
+  const sections = document.querySelectorAll('.module');
+  const navLinks  = document.querySelectorAll('.module-nav a');
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        navLinks.forEach(a => a.style.color = '');
+        const link = document.querySelector(`.module-nav a[href="#${e.target.id}"]`);
+        if (link) { link.style.color = '#0a0a0a'; link.style.borderBottomColor = '#6BD9D6'; }
+      }
+    });
+  }, { threshold: 0.35 });
+  sections.forEach(s => obs.observe(s));
+</script>
+</body>
+</html>
