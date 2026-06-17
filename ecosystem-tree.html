@@ -16,6 +16,7 @@
     --text-muted: #6b6560;
     --accent: #c47a2e;
     --danger: #c0392b;
+    --success: #2e8c5a;
     --radius: 8px;
     --shadow: 0 2px 8px rgba(0,0,0,0.08);
   }
@@ -37,49 +38,40 @@
     padding: 10px 20px;
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 12px;
     flex-shrink: 0;
     z-index: 10;
   }
-  header h1 { font-size: 15px; font-weight: 700; letter-spacing: 0.02em; }
-  header span { font-size: 12px; color: var(--text-muted); }
+  header h1 { font-size: 15px; font-weight: 700; letter-spacing: 0.02em; white-space: nowrap; }
+  header span { font-size: 12px; color: var(--text-muted); white-space: nowrap; }
   .spacer { flex: 1; }
   .btn {
     display: inline-flex; align-items: center; gap: 6px;
-    padding: 6px 14px; border-radius: var(--radius);
+    padding: 6px 13px; border-radius: var(--radius);
     font-size: 12px; font-weight: 600; cursor: pointer;
     border: 1px solid var(--border); background: var(--surface);
-    color: var(--text); transition: background 0.15s;
+    color: var(--text); transition: background 0.15s; white-space: nowrap;
   }
   .btn:hover { background: var(--bg); }
   .btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
   .btn.primary:hover { background: #b36a20; }
+  .btn.success { background: var(--success); color: #fff; border-color: var(--success); }
+  .btn.success:hover { background: #237049; }
   .btn.danger { background: var(--danger); color: #fff; border-color: var(--danger); }
   .btn.danger:hover { background: #a93226; }
 
   /* ── Main layout ── */
-  .main {
-    display: flex;
-    flex: 1;
-    overflow: hidden;
-  }
+  .main { display: flex; flex: 1; overflow: hidden; }
 
   /* ── Sidebar ── */
   .sidebar {
-    width: 280px;
-    background: var(--surface);
+    width: 280px; background: var(--surface);
     border-right: 1px solid var(--border);
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    flex-shrink: 0;
+    display: flex; flex-direction: column; overflow: hidden; flex-shrink: 0;
   }
-  .sidebar-tabs {
-    display: flex;
-    border-bottom: 1px solid var(--border);
-  }
+  .sidebar-tabs { display: flex; border-bottom: 1px solid var(--border); }
   .tab-btn {
-    flex: 1; padding: 10px 8px; font-size: 12px; font-weight: 600;
+    flex: 1; padding: 10px 6px; font-size: 11.5px; font-weight: 600;
     text-align: center; cursor: pointer; border: none; background: none;
     color: var(--text-muted); border-bottom: 2px solid transparent;
     transition: color 0.15s, border-color 0.15s;
@@ -101,25 +93,17 @@
   .color-row { display: flex; gap: 6px; flex-wrap: wrap; }
   .color-swatch {
     width: 26px; height: 26px; border-radius: 50%; cursor: pointer;
-    border: 2px solid transparent; transition: transform 0.1s, border-color 0.1s;
-    flex-shrink: 0;
+    border: 2px solid transparent; transition: transform 0.1s, border-color 0.1s; flex-shrink: 0;
   }
   .color-swatch:hover { transform: scale(1.15); }
   .color-swatch.selected { border-color: var(--text); }
-
-  .section-title {
-    font-size: 11px; font-weight: 700; color: var(--text-muted);
-    text-transform: uppercase; letter-spacing: 0.07em;
-    margin: 4px 0 2px;
-  }
 
   /* Category list */
   .cat-list { display: flex; flex-direction: column; gap: 6px; }
   .cat-item {
     display: flex; align-items: center; gap: 8px;
     padding: 8px 10px; border: 1px solid var(--border);
-    border-radius: var(--radius); cursor: pointer;
-    transition: background 0.12s;
+    border-radius: var(--radius); cursor: pointer; transition: background 0.12s;
   }
   .cat-item:hover { background: var(--bg); }
   .cat-item.selected { border-color: var(--accent); background: #fdf5eb; }
@@ -137,7 +121,6 @@
     border-radius: var(--radius); cursor: pointer; transition: background 0.12s;
   }
   .node-item:hover { background: var(--bg); }
-  .node-item.selected { border-color: var(--accent); background: #fdf5eb; }
   .node-label { font-size: 12px; flex: 1; }
   .node-cat-badge {
     font-size: 10px; padding: 2px 7px; border-radius: 20px;
@@ -146,15 +129,34 @@
   .node-delete { font-size: 13px; color: var(--text-muted); padding: 2px 4px; border-radius: 4px; cursor: pointer; line-height: 1; }
   .node-delete:hover { color: var(--danger); background: #fdecea; }
 
+  /* ── Version history list ── */
+  .version-list { display: flex; flex-direction: column; gap: 8px; }
+  .version-empty { font-size: 12px; color: var(--text-muted); text-align: center; padding: 24px 0; line-height: 1.6; }
+  .version-item {
+    border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 10px 12px; background: var(--surface); transition: border-color 0.15s;
+  }
+  .version-item:hover { border-color: var(--accent); }
+  .version-name { font-size: 13px; font-weight: 600; margin-bottom: 3px; }
+  .version-meta { font-size: 11px; color: var(--text-muted); margin-bottom: 8px; }
+  .version-actions { display: flex; gap: 6px; }
+  .version-btn {
+    font-size: 11px; font-weight: 600; padding: 4px 10px;
+    border-radius: 6px; cursor: pointer; border: 1px solid var(--border);
+    background: var(--bg); color: var(--text); transition: background 0.12s;
+  }
+  .version-btn:hover { background: #ece9e4; }
+  .version-btn.restore { background: #edf7f2; border-color: #b0d9c0; color: var(--success); }
+  .version-btn.restore:hover { background: #d8f0e4; }
+  .version-btn.del { background: #fdecea; border-color: #f0b9b5; color: var(--danger); }
+  .version-btn.del:hover { background: #f9d5d3; }
+  .version-diff { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+
   /* ── Canvas ── */
   .canvas-wrap {
-    flex: 1;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--bg);
-    position: relative;
+    flex: 1; overflow: hidden; display: flex;
+    align-items: center; justify-content: center;
+    background: var(--bg); position: relative;
   }
   #tree-svg { width: 100%; height: 100%; }
   .link { fill: none; stroke: #ccc; stroke-width: 1.4; }
@@ -196,7 +198,6 @@
   }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-  /* Hint bar */
   .hint-bar {
     position: absolute; bottom: 12px; right: 16px;
     font-size: 11px; color: var(--text-muted); pointer-events: none;
@@ -210,9 +211,10 @@
   <h1>Atomic — Software Ecosystem</h1>
   <span id="node-count"></span>
   <div class="spacer"></div>
-  <button class="btn" onclick="exportJSON()">⬇ Export JSON</button>
-  <button class="btn" onclick="importClick()">⬆ Import JSON</button>
+  <button class="btn" onclick="exportJSON()">⬇ Export</button>
+  <button class="btn" onclick="importClick()">⬆ Import</button>
   <input type="file" id="import-input" accept=".json" style="display:none" onchange="importJSON(event)">
+  <button class="btn success" onclick="openSaveVersion()">💾 Save Version</button>
   <button class="btn primary" onclick="openAddCategory()">＋ Category</button>
   <button class="btn primary" onclick="openAddNode()">＋ Node</button>
 </header>
@@ -223,6 +225,7 @@
     <div class="sidebar-tabs">
       <button class="tab-btn active" onclick="switchTab('categories', this)">Categories</button>
       <button class="tab-btn" onclick="switchTab('nodes', this)">Nodes</button>
+      <button class="tab-btn" onclick="switchTab('history', this)">History</button>
     </div>
 
     <div class="tab-panel active" id="tab-categories">
@@ -234,6 +237,10 @@
         <input type="text" id="node-search" placeholder="Search nodes…" oninput="renderNodeList()">
       </div>
       <div class="node-list" id="node-list"></div>
+    </div>
+
+    <div class="tab-panel" id="tab-history">
+      <div class="version-list" id="version-list"></div>
     </div>
   </div>
 
@@ -283,6 +290,41 @@
   </div>
 </div>
 
+<!-- Save Version Modal -->
+<div class="modal-overlay" id="version-modal">
+  <div class="modal">
+    <h2>Save Version</h2>
+    <div class="field">
+      <label>Version Name</label>
+      <input type="text" id="version-name-input" placeholder="e.g. Q3 2026 baseline">
+    </div>
+    <div class="field">
+      <label>Notes (optional)</label>
+      <input type="text" id="version-notes-input" placeholder="What changed?">
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('version-modal')">Cancel</button>
+      <button class="btn success" onclick="confirmSaveVersion()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Restore Confirm Modal -->
+<div class="modal-overlay" id="restore-modal">
+  <div class="modal">
+    <h2>Restore Version</h2>
+    <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;line-height:1.5">
+      This will replace your current diagram with the saved version.<br>
+      Your current state will be auto-saved as <b>"Before restore"</b> first.
+    </p>
+    <div id="restore-preview" style="font-size:12px;background:var(--bg);border-radius:var(--radius);padding:10px 12px;margin-bottom:4px;color:var(--text-muted)"></div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('restore-modal')">Cancel</button>
+      <button class="btn success" onclick="confirmRestore()">Restore</button>
+    </div>
+  </div>
+</div>
+
 <!-- Toast -->
 <div class="toast" id="toast"></div>
 
@@ -295,61 +337,181 @@ const PALETTE = [
   "#a0733a","#5b9fd4","#e0a030","#687a3a"
 ];
 
-let selectedColor = PALETTE[0];
-let editingCatId = null;
-let editingNodeId = null;
-let selectedCatId = null;
+const MAX_VERSIONS = 30;
+const STORAGE_KEY  = "atomic-ecosystem";
+const HISTORY_KEY  = "atomic-ecosystem-history";
+
+let selectedColor  = PALETTE[0];
+let editingCatId   = null;
+let editingNodeId  = null;
+let selectedCatId  = null;
+let pendingRestoreId = null;
 
 let state = loadState() || {
   categories: [
-    { id: "commerce", name: "Shopify", color: "#c47a2e" },
-    { id: "crm",      name: "HubSpot", color: "#3d7abf" },
-    { id: "gws",      name: "Google Workspace", color: "#2e8c5a" },
+    { id: "commerce", name: "Shopify",              color: "#c47a2e" },
+    { id: "crm",      name: "HubSpot",              color: "#3d7abf" },
+    { id: "gws",      name: "Google Workspace",     color: "#2e8c5a" },
     { id: "tools",    name: "GitHub Pages / Tools", color: "#7b5ea7" },
-    { id: "ops",      name: "Ops / Logistics", color: "#b05252" },
-    { id: "ai",       name: "Claude / AI", color: "#4a8fa8" }
+    { id: "ops",      name: "Ops / Logistics",      color: "#b05252" },
+    { id: "ai",       name: "Claude / AI",          color: "#4a8fa8" }
   ],
   nodes: [
-    { id: "n1",  label: "Wholesale Store",     cat: "commerce" },
-    { id: "n2",  label: "B2B Portal",          cat: "commerce" },
-    { id: "n3",  label: "Products & Inventory",cat: "commerce" },
-    { id: "n4",  label: "Orders",              cat: "commerce" },
-    { id: "n5",  label: "Analytics",           cat: "commerce" },
-    { id: "n6",  label: "Discounts",           cat: "commerce" },
-    { id: "n7",  label: "Support Tickets",     cat: "crm" },
-    { id: "n8",  label: "CRM Contacts",        cat: "crm" },
-    { id: "n9",  label: "Companies",           cat: "crm" },
-    { id: "n10", label: "Campaigns",           cat: "crm" },
-    { id: "n11", label: "Gmail",               cat: "gws" },
-    { id: "n12", label: "Sheets",              cat: "gws" },
-    { id: "n13", label: "Drive",               cat: "gws" },
-    { id: "n14", label: "Docs",                cat: "gws" },
-    { id: "n15", label: "Calendar",            cat: "gws" },
-    { id: "n16", label: "PAR Ordering",        cat: "tools" },
-    { id: "n17", label: "COGS Calculator",     cat: "tools" },
-    { id: "n18", label: "Wholesale Map",       cat: "tools" },
-    { id: "n19", label: "Training Form",       cat: "tools" },
-    { id: "n20", label: "Dashboard",           cat: "tools" },
-    { id: "n21", label: "Calendly",            cat: "ops" },
-    { id: "n22", label: "Training Requests",   cat: "ops" },
-    { id: "n23", label: "Order Cutoffs",       cat: "ops" },
-    { id: "n24", label: "UPS Ground",          cat: "ops" },
-    { id: "n25", label: "Mapline",             cat: "ops" },
-    { id: "n26", label: "Skills / Workflows",  cat: "ai" },
-    { id: "n27", label: "Ticket Drafting",     cat: "ai" },
-    { id: "n28", label: "Shopify Upload",      cat: "ai" },
-    { id: "n29", label: "Singletrack Update",  cat: "ai" },
-    { id: "n30", label: "Report Generation",   cat: "ai" }
+    { id:"n1",  label:"Wholesale Store",      cat:"commerce" },
+    { id:"n2",  label:"B2B Portal",           cat:"commerce" },
+    { id:"n3",  label:"Products & Inventory", cat:"commerce" },
+    { id:"n4",  label:"Orders",               cat:"commerce" },
+    { id:"n5",  label:"Analytics",            cat:"commerce" },
+    { id:"n6",  label:"Discounts",            cat:"commerce" },
+    { id:"n7",  label:"Support Tickets",      cat:"crm" },
+    { id:"n8",  label:"CRM Contacts",         cat:"crm" },
+    { id:"n9",  label:"Companies",            cat:"crm" },
+    { id:"n10", label:"Campaigns",            cat:"crm" },
+    { id:"n11", label:"Gmail",                cat:"gws" },
+    { id:"n12", label:"Sheets",               cat:"gws" },
+    { id:"n13", label:"Drive",                cat:"gws" },
+    { id:"n14", label:"Docs",                 cat:"gws" },
+    { id:"n15", label:"Calendar",             cat:"gws" },
+    { id:"n16", label:"PAR Ordering",         cat:"tools" },
+    { id:"n17", label:"COGS Calculator",      cat:"tools" },
+    { id:"n18", label:"Wholesale Map",        cat:"tools" },
+    { id:"n19", label:"Training Form",        cat:"tools" },
+    { id:"n20", label:"Dashboard",            cat:"tools" },
+    { id:"n21", label:"Calendly",             cat:"ops" },
+    { id:"n22", label:"Training Requests",    cat:"ops" },
+    { id:"n23", label:"Order Cutoffs",        cat:"ops" },
+    { id:"n24", label:"UPS Ground",           cat:"ops" },
+    { id:"n25", label:"Mapline",              cat:"ops" },
+    { id:"n26", label:"Skills / Workflows",   cat:"ai" },
+    { id:"n27", label:"Ticket Drafting",      cat:"ai" },
+    { id:"n28", label:"Shopify Upload",       cat:"ai" },
+    { id:"n29", label:"Singletrack Update",   cat:"ai" },
+    { id:"n30", label:"Report Generation",    cat:"ai" }
   ]
 };
 
 function loadState() {
-  try { return JSON.parse(localStorage.getItem("atomic-ecosystem")); } catch { return null; }
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)); } catch { return null; }
 }
 function saveState() {
-  localStorage.setItem("atomic-ecosystem", JSON.stringify(state));
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+function loadHistory() {
+  try { return JSON.parse(localStorage.getItem(HISTORY_KEY)) || []; } catch { return []; }
+}
+function saveHistory(h) {
+  localStorage.setItem(HISTORY_KEY, JSON.stringify(h));
 }
 function uid() { return "id" + Math.random().toString(36).slice(2, 9); }
+function fmtDate(iso) {
+  const d = new Date(iso);
+  return d.toLocaleDateString("en-US", { month:"short", day:"numeric", year:"numeric" })
+    + " · " + d.toLocaleTimeString("en-US", { hour:"numeric", minute:"2-digit" });
+}
+
+// ── Version history ───────────────────────────────────────────────────────────
+
+function openSaveVersion() {
+  document.getElementById("version-name-input").value = "";
+  document.getElementById("version-notes-input").value = "";
+  openModal("version-modal");
+  setTimeout(() => document.getElementById("version-name-input").focus(), 50);
+}
+
+function confirmSaveVersion() {
+  const name  = document.getElementById("version-name-input").value.trim();
+  const notes = document.getElementById("version-notes-input").value.trim();
+  if (!name) { shake("version-name-input"); return; }
+  pushVersion(name, notes);
+  closeModal("version-modal");
+  toast("Version saved");
+  renderVersionList();
+}
+
+function pushVersion(name, notes, snapshot) {
+  const h = loadHistory();
+  h.unshift({
+    id: uid(),
+    name,
+    notes: notes || "",
+    savedAt: new Date().toISOString(),
+    cats: (snapshot || state).categories.length,
+    nodes: (snapshot || state).nodes.length,
+    state: JSON.parse(JSON.stringify(snapshot || state))
+  });
+  if (h.length > MAX_VERSIONS) h.length = MAX_VERSIONS;
+  saveHistory(h);
+}
+
+function renderVersionList() {
+  const h  = loadHistory();
+  const el = document.getElementById("version-list");
+  el.innerHTML = "";
+
+  if (!h.length) {
+    el.innerHTML = `<div class="version-empty">No saved versions yet.<br>Click <b>💾 Save Version</b> to snapshot<br>the current diagram.</div>`;
+    return;
+  }
+
+  h.forEach(v => {
+    const div = document.createElement("div");
+    div.className = "version-item";
+    div.innerHTML = `
+      <div class="version-name">${v.name}</div>
+      <div class="version-meta">${fmtDate(v.savedAt)}</div>
+      ${v.notes ? `<div class="version-diff">${v.notes}</div>` : ""}
+      <div class="version-diff">${v.cats} categories · ${v.nodes} nodes</div>
+      <div class="version-actions" style="margin-top:8px">
+        <button class="version-btn restore" onclick="openRestore('${v.id}')">↩ Restore</button>
+        <button class="version-btn" onclick="exportVersion('${v.id}')">⬇ Export</button>
+        <button class="version-btn del" onclick="deleteVersion('${v.id}')">✕</button>
+      </div>
+    `;
+    el.appendChild(div);
+  });
+}
+
+function openRestore(id) {
+  const h = loadHistory();
+  const v = h.find(x => x.id === id);
+  if (!v) return;
+  pendingRestoreId = id;
+  document.getElementById("restore-preview").textContent =
+    `Restoring: "${v.name}" — ${fmtDate(v.savedAt)}`;
+  openModal("restore-modal");
+}
+
+function confirmRestore() {
+  const h = loadHistory();
+  const v = h.find(x => x.id === pendingRestoreId);
+  if (!v) return;
+  pushVersion("Before restore", `Auto-saved before restoring "${v.name}"`);
+  state = JSON.parse(JSON.stringify(v.state));
+  closeModal("restore-modal");
+  persist();
+  renderVersionList();
+  toast(`Restored "${v.name}"`);
+}
+
+function deleteVersion(id) {
+  const h = loadHistory();
+  const v = h.find(x => x.id === id);
+  if (!v || !confirm(`Delete saved version "${v.name}"?`)) return;
+  saveHistory(h.filter(x => x.id !== id));
+  renderVersionList();
+  toast("Version deleted");
+}
+
+function exportVersion(id) {
+  const h = loadHistory();
+  const v = h.find(x => x.id === id);
+  if (!v) return;
+  const blob = new Blob([JSON.stringify(v.state, null, 2)], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `atomic-ecosystem-${v.name.replace(/\s+/g,"-").toLowerCase()}.json`;
+  a.click();
+}
 
 // ── Tree rendering ────────────────────────────────────────────────────────────
 
@@ -360,10 +522,7 @@ function buildTreeData() {
   return {
     name: "Atomic",
     children: state.categories.map(cat => ({
-      id: cat.id,
-      name: cat.name,
-      color: cat.color,
-      category: cat.id,
+      id: cat.id, name: cat.name, color: cat.color, category: cat.id,
       children: state.nodes
         .filter(n => n.cat === cat.id)
         .map(n => ({ id: n.id, name: n.label, color: cat.color, category: cat.id, isLeaf: true }))
@@ -377,14 +536,9 @@ function renderTree() {
   const R = Math.min(W, H) / 2 - margin;
 
   d3.select("#tree-svg").selectAll("*").remove();
+  svgEl = d3.select("#tree-svg").attr("viewBox", `0 0 ${W} ${H}`);
 
-  svgEl = d3.select("#tree-svg")
-    .attr("viewBox", `0 0 ${W} ${H}`);
-
-  // Zoom + pan
-  const zoom = d3.zoom().scaleExtent([0.3, 3]).on("zoom", e => {
-    gMain.attr("transform", e.transform);
-  });
+  const zoom = d3.zoom().scaleExtent([0.3, 3]).on("zoom", e => gMain.attr("transform", e.transform));
   svgEl.call(zoom);
 
   gMain = svgEl.append("g").attr("transform", `translate(${W/2},${H/2})`);
@@ -398,28 +552,19 @@ function renderTree() {
 
   const root = tree(d3.hierarchy(treeData));
 
-  // Links
   gMain.append("g")
-    .selectAll("path")
-    .data(root.links())
-    .join("path")
+    .selectAll("path").data(root.links()).join("path")
     .attr("class", "link")
     .attr("d", d3.linkRadial().angle(d => d.x).radius(d => d.y));
 
-  // Nodes
   const node = gMain.append("g")
-    .selectAll("g")
-    .data(root.descendants())
-    .join("g")
+    .selectAll("g").data(root.descendants()).join("g")
     .attr("class", "node-g")
     .attr("transform", d =>
-      d.depth === 0
-        ? "translate(0,0)"
-        : `rotate(${d.x * 180 / Math.PI - 90}) translate(${d.y},0)`
-    )
+      d.depth === 0 ? "translate(0,0)"
+        : `rotate(${d.x * 180 / Math.PI - 90}) translate(${d.y},0)`)
     .on("click", (event, d) => {
       event.stopPropagation();
-      if (d.depth === 0) return;
       if (d.depth === 1) openEditCategory(d.data.id);
       if (d.depth === 2) openEditNode(d.data.id);
     })
@@ -429,19 +574,16 @@ function renderTree() {
       tip.style.opacity = "1";
       tip.innerHTML = d.depth === 1
         ? `<b>${d.data.name}</b> — ${d.children?.length || 0} nodes · <i>click to edit</i>`
-        : `${d.data.name} <span style="color:#999">· click to edit / delete</span>`;
+        : `${d.data.name} <span style="color:#999">· click to edit</span>`;
     })
     .on("mousemove", event => {
-      const tip = document.getElementById("tooltip");
+      const tip  = document.getElementById("tooltip");
       const wrap = document.getElementById("canvas-wrap").getBoundingClientRect();
       tip.style.left = (event.clientX - wrap.left + 12) + "px";
       tip.style.top  = (event.clientY - wrap.top  + 12) + "px";
     })
-    .on("mouseout", () => {
-      document.getElementById("tooltip").style.opacity = "0";
-    });
+    .on("mouseout", () => { document.getElementById("tooltip").style.opacity = "0"; });
 
-  // Circles
   node.append("circle")
     .attr("class", "node-circle")
     .attr("r", d => d.depth === 0 ? 24 : d.depth === 1 ? 8 : 4.5)
@@ -457,29 +599,18 @@ function renderTree() {
       return d3.color(cat.color).darker(0.5);
     });
 
-  // Root label
-  node.filter(d => d.depth === 0)
-    .append("text")
-    .attr("class", "node-text root")
-    .text("Atomic");
+  node.filter(d => d.depth === 0).append("text").attr("class", "node-text root").text("Atomic");
 
-  // Branch labels
-  node.filter(d => d.depth === 1)
-    .append("text")
+  node.filter(d => d.depth === 1).append("text")
     .attr("class", "node-text branch")
     .attr("dy", "0.31em")
     .attr("x", d => d.x < Math.PI ? 14 : -14)
     .attr("text-anchor", d => d.x < Math.PI ? "start" : "end")
     .attr("transform", d => d.x >= Math.PI ? "rotate(180)" : null)
-    .style("fill", d => {
-      const cat = state.categories.find(c => c.id === d.data.id);
-      return cat ? cat.color : "#333";
-    })
+    .style("fill", d => { const cat = state.categories.find(c => c.id === d.data.id); return cat ? cat.color : "#333"; })
     .text(d => d.data.name);
 
-  // Leaf labels
-  node.filter(d => d.depth === 2)
-    .append("text")
+  node.filter(d => d.depth === 2).append("text")
     .attr("class", "node-text leaf")
     .attr("dy", "0.31em")
     .attr("x", d => d.x < Math.PI ? 9 : -9)
@@ -487,7 +618,6 @@ function renderTree() {
     .attr("transform", d => d.x >= Math.PI ? "rotate(180)" : null)
     .text(d => d.data.name);
 
-  // Node count
   document.getElementById("node-count").textContent =
     `${state.categories.length} categories · ${state.nodes.length} nodes`;
 }
@@ -506,7 +636,7 @@ function renderCatList() {
       <div class="cat-dot" style="background:${cat.color}"></div>
       <span class="cat-name">${cat.name}</span>
       <span class="cat-count">${count}</span>
-      <span class="cat-delete" title="Delete category" onclick="event.stopPropagation();deleteCategory('${cat.id}')">✕</span>
+      <span class="cat-delete" title="Delete" onclick="event.stopPropagation();deleteCategory('${cat.id}')">✕</span>
     `;
     el.appendChild(div);
   });
@@ -517,7 +647,7 @@ function renderNodeList() {
   const el = document.getElementById("node-list");
   el.innerHTML = "";
   state.nodes
-    .filter(n => (!query || n.label.toLowerCase().includes(query)))
+    .filter(n => !query || n.label.toLowerCase().includes(query))
     .forEach(n => {
       const cat = state.categories.find(c => c.id === n.cat);
       const div = document.createElement("div");
@@ -526,7 +656,7 @@ function renderNodeList() {
       div.innerHTML = `
         <span class="node-label">${n.label}</span>
         ${cat ? `<span class="node-cat-badge" style="background:${cat.color}">${cat.name}</span>` : ""}
-        <span class="node-delete" title="Delete node" onclick="event.stopPropagation();deleteNode('${n.id}')">✕</span>
+        <span class="node-delete" title="Delete" onclick="event.stopPropagation();deleteNode('${n.id}')">✕</span>
       `;
       el.appendChild(div);
     });
@@ -537,6 +667,7 @@ function switchTab(name, btn) {
   document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
   btn.classList.add("active");
   document.getElementById("tab-" + name).classList.add("active");
+  if (name === "history") renderVersionList();
 }
 
 // ── Color swatches ────────────────────────────────────────────────────────────
@@ -601,7 +732,7 @@ function deleteCategory(id) {
   const cat = state.categories.find(c => c.id === id);
   if (!confirm(`Delete "${cat.name}" and all its nodes?`)) return;
   state.categories = state.categories.filter(c => c.id !== id);
-  state.nodes = state.nodes.filter(n => n.cat !== id);
+  state.nodes      = state.nodes.filter(n => n.cat !== id);
   if (selectedCatId === id) selectedCatId = null;
   toast("Category deleted");
   persist();
@@ -636,8 +767,7 @@ function populateCatSelect(selectedId) {
   sel.innerHTML = "";
   state.categories.forEach(cat => {
     const opt = document.createElement("option");
-    opt.value = cat.id;
-    opt.textContent = cat.name;
+    opt.value = cat.id; opt.textContent = cat.name;
     if (cat.id === selectedId) opt.selected = true;
     sel.appendChild(opt);
   });
@@ -667,13 +797,12 @@ function deleteNode(id) {
 
 // ── Modal helpers ─────────────────────────────────────────────────────────────
 
-function openModal(id) { document.getElementById(id).classList.add("open"); }
+function openModal(id)  { document.getElementById(id).classList.add("open"); }
 function closeModal(id) { document.getElementById(id).classList.remove("open"); }
 
 document.querySelectorAll(".modal-overlay").forEach(el => {
   el.addEventListener("click", e => { if (e.target === el) el.classList.remove("open"); });
 });
-
 document.addEventListener("keydown", e => {
   if (e.key === "Escape") document.querySelectorAll(".modal-overlay.open").forEach(m => m.classList.remove("open"));
 });
@@ -699,12 +828,12 @@ function importJSON(event) {
     try {
       const parsed = JSON.parse(e.target.result);
       if (!parsed.categories || !parsed.nodes) throw new Error();
+      pushVersion("Before import", "Auto-saved before JSON import");
       state = parsed;
       persist();
+      renderVersionList();
       toast("Imported successfully");
-    } catch {
-      alert("Invalid JSON file. Expected {categories, nodes} format.");
-    }
+    } catch { alert("Invalid JSON file. Expected {categories, nodes} format."); }
   };
   reader.readAsText(file);
   event.target.value = "";
