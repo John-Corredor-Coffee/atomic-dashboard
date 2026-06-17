@@ -85,6 +85,13 @@
     outline: none; transition: border-color 0.15s;
   }
   .field input:focus, .field select:focus { border-color: var(--accent); }
+  .field input[type="color"] {
+    padding: 2px 4px; height: 34px; width: 100%; cursor: pointer; border-radius: var(--radius);
+  }
+  .field input[type="range"] { padding: 0; height: 6px; cursor: pointer; accent-color: var(--accent); }
+  .range-row { display: flex; align-items: center; gap: 10px; }
+  .range-row input { flex: 1; }
+  .range-val { font-size: 12px; font-weight: 600; color: var(--text-muted); min-width: 32px; text-align: right; }
 
   .color-row { display: flex; gap: 6px; flex-wrap: wrap; }
   .color-swatch {
@@ -265,7 +272,19 @@
   <div class="modal">
     <h2 id="cat-modal-title">Add Category</h2>
     <div class="field"><label>Name</label><input type="text" id="cat-name-input" placeholder="e.g. Analytics"></div>
-    <div class="field"><label>Color</label><div class="color-row" id="color-swatches"></div></div>
+    <div class="field"><label>Bubble Color</label><div class="color-row" id="color-swatches"></div></div>
+    <div class="field">
+      <label>Label Color</label>
+      <input type="color" id="cat-label-color" value="#c47a2e">
+    </div>
+    <div class="field">
+      <label>Bubble Size</label>
+      <div class="range-row">
+        <input type="range" id="cat-size-slider" min="0.4" max="2.5" step="0.05" value="1"
+          oninput="document.getElementById('cat-size-val').textContent = parseFloat(this.value).toFixed(2) + '×'">
+        <span class="range-val" id="cat-size-val">1.00×</span>
+      </div>
+    </div>
     <div class="modal-actions">
       <button class="btn" onclick="closeModal('cat-modal')">Cancel</button>
       <button class="btn primary" id="cat-modal-save" onclick="saveCategory()">Add</button>
@@ -279,6 +298,7 @@
     <h2 id="node-modal-title">Add Node</h2>
     <div class="field"><label>Label</label><input type="text" id="node-label-input" placeholder="e.g. Order Tracking"></div>
     <div class="field"><label>Category</label><select id="node-cat-select"></select></div>
+    <div class="field"><label>Text Color</label><input type="color" id="node-text-color" value="#ffffff"></div>
     <div class="modal-actions">
       <button class="btn" onclick="closeModal('node-modal')">Cancel</button>
       <button class="btn primary" id="node-modal-save" onclick="saveNode()">Add</button>
@@ -330,11 +350,12 @@ const MAX_VERSIONS = 30;
 const STORAGE_KEY  = "atomic-ecosystem-v2";
 const HISTORY_KEY  = "atomic-ecosystem-history";
 
-function getCatR(nodeCount) {
-  if (nodeCount === 0) return 58;
-  if (nodeCount === 1) return 66;
+function getCatR(nodeCount, size) {
+  const s = size || 1;
+  if (nodeCount === 0) return Math.round(58 * s);
+  if (nodeCount === 1) return Math.round(66 * s);
   const innerR = (nodeCount * (NODE_R * 2 + 12)) / (2 * Math.PI);
-  return Math.max(72, Math.ceil(innerR + NODE_R + CAT_PAD));
+  return Math.round(Math.max(72, Math.ceil(innerR + NODE_R + CAT_PAD)) * s);
 }
 
 // ── State ─────────────────────────────────────────────────────────────────────
@@ -357,12 +378,12 @@ if (!state.layout)      state.layout = {};
 function buildDefaultState() {
   return {
     categories: [
-      { id: "commerce", name: "Shopify",              color: "#c47a2e" },
-      { id: "crm",      name: "HubSpot",              color: "#3d7abf" },
-      { id: "gws",      name: "Google Workspace",     color: "#2e8c5a" },
-      { id: "tools",    name: "GitHub Pages / Tools", color: "#7b5ea7" },
-      { id: "ops",      name: "Ops / Logistics",      color: "#b05252" },
-      { id: "ai",       name: "Claude / AI",          color: "#4a8fa8" }
+      { id: "commerce", name: "Shopify",              color: "#c47a2e", labelColor: "#c47a2e", size: 1 },
+      { id: "crm",      name: "HubSpot",              color: "#3d7abf", labelColor: "#3d7abf", size: 1 },
+      { id: "gws",      name: "Google Workspace",     color: "#2e8c5a", labelColor: "#2e8c5a", size: 1 },
+      { id: "tools",    name: "GitHub Pages / Tools", color: "#7b5ea7", labelColor: "#7b5ea7", size: 1 },
+      { id: "ops",      name: "Ops / Logistics",      color: "#b05252", labelColor: "#b05252", size: 1 },
+      { id: "ai",       name: "Claude / AI",          color: "#4a8fa8", labelColor: "#4a8fa8", size: 1 }
     ],
     nodes: [
       { id:"n1",  label:"Wholesale Store",      cat:"commerce" },
@@ -428,7 +449,7 @@ function computeNodeLocalPositions() {
     const nodes = state.nodes.filter(n => n.cat === cat.id);
     if (!nodes.length) return;
     if (nodes.length === 1) { nodeLocalPos[nodes[0].id] = { x: 0, y: 0 }; return; }
-    const catR   = getCatR(nodes.length);
+    const catR   = getCatR(nodes.length, cat.size || 1);
     const innerR = catR - NODE_R - CAT_PAD;
     nodes.forEach((n, i) => {
       const angle = (2 * Math.PI * i / nodes.length) - Math.PI / 2;
@@ -531,7 +552,9 @@ function renderBubbles() {
     ...cat,
     x: state.layout[cat.id]?.x || 0,
     y: state.layout[cat.id]?.y || 0,
-    catNodes: state.nodes.filter(n => n.cat === cat.id)
+    catNodes: state.nodes.filter(n => n.cat === cat.id),
+    size: cat.size || 1,
+    labelColor: cat.labelColor || cat.color
   }));
 
   gBubbles.selectAll(".cat-g").remove();
@@ -547,7 +570,7 @@ function renderBubbles() {
   // Outer bubble
   groups.append("circle")
     .attr("class", "cat-bubble")
-    .attr("r", d => getCatR(d.catNodes.length))
+    .attr("r", d => getCatR(d.catNodes.length, d.size))
     .attr("fill",         d => d.color + "1a")
     .attr("stroke",       d => d.color)
     .attr("stroke-width", 2)
@@ -573,10 +596,10 @@ function renderBubbles() {
 
   // Category label (top inside edge)
   groups.append("text")
-    .attr("y", d => -getCatR(d.catNodes.length) + 18)
+    .attr("y", d => -getCatR(d.catNodes.length, d.size) + 18)
     .attr("text-anchor", "middle")
     .attr("font-size", "12px").attr("font-weight", "700")
-    .attr("fill", d => d.color)
+    .attr("fill", d => d.labelColor)
     .attr("pointer-events", "none")
     .text(d => d.name);
 
@@ -587,7 +610,8 @@ function renderBubbles() {
       ...n,
       lx: nodeLocalPos[n.id]?.x || 0,
       ly: nodeLocalPos[n.id]?.y || 0,
-      color: catD.color
+      color: catD.color,
+      textColor: n.textColor || "#fff"
     }));
 
     const ngs = g.selectAll(".node-g")
@@ -620,7 +644,7 @@ function renderBubbles() {
     ngs.append("text")
       .attr("text-anchor", "middle").attr("dominant-baseline", "middle")
       .attr("font-size", "9px").attr("font-weight", "600")
-      .attr("fill", "#fff").attr("pointer-events", "none")
+      .attr("fill", d => d.textColor || "#fff").attr("pointer-events", "none")
       .text(d => d.label.length > 11 ? d.label.slice(0,10) + "…" : d.label);
 
     // Invisible larger hit target
@@ -794,7 +818,7 @@ function getCatAtPos(pos) {
     const cp = state.layout[cat.id];
     if (!cp) continue;
     const count = state.nodes.filter(n => n.cat === cat.id).length;
-    const r = getCatR(count);
+    const r = getCatR(count, cat.size || 1);
     const dx = pos.x - cp.x, dy = pos.y - cp.y;
     if (dx*dx + dy*dy <= r*r) return cat.id;
   }
@@ -963,7 +987,11 @@ function openAddCategory() {
   document.getElementById("cat-modal-title").textContent = "Add Category";
   document.getElementById("cat-modal-save").textContent = "Add";
   document.getElementById("cat-name-input").value = "";
-  buildSwatches("color-swatches", PALETTE[Math.floor(Math.random() * PALETTE.length)]);
+  const c = PALETTE[Math.floor(Math.random() * PALETTE.length)];
+  buildSwatches("color-swatches", c);
+  document.getElementById("cat-label-color").value = c;
+  document.getElementById("cat-size-slider").value = 1;
+  document.getElementById("cat-size-val").textContent = "1.00×";
   openModal("cat-modal");
   setTimeout(() => document.getElementById("cat-name-input").focus(), 50);
 }
@@ -976,6 +1004,10 @@ function openEditCategory(id) {
   document.getElementById("cat-modal-save").textContent = "Save";
   document.getElementById("cat-name-input").value = cat.name;
   buildSwatches("color-swatches", cat.color);
+  document.getElementById("cat-label-color").value = cat.labelColor || cat.color;
+  const sz = cat.size || 1;
+  document.getElementById("cat-size-slider").value = sz;
+  document.getElementById("cat-size-val").textContent = parseFloat(sz).toFixed(2) + "×";
   openModal("cat-modal");
   setTimeout(() => document.getElementById("cat-name-input").focus(), 50);
 }
@@ -983,15 +1015,17 @@ function openEditCategory(id) {
 function saveCategory() {
   const name = document.getElementById("cat-name-input").value.trim();
   if (!name) { shake("cat-name-input"); return; }
+  const labelColor = document.getElementById("cat-label-color").value;
+  const size       = parseFloat(document.getElementById("cat-size-slider").value) || 1;
   if (editingCatId) {
     const cat = state.categories.find(c => c.id === editingCatId);
-    cat.name = name; cat.color = selectedColor;
+    cat.name = name; cat.color = selectedColor; cat.labelColor = labelColor; cat.size = size;
     toast("Category updated");
   } else {
     const newId = uid();
     const wrap = document.getElementById("canvas-wrap");
     const W = wrap.clientWidth || 900, H = wrap.clientHeight || 650;
-    state.categories.push({ id: newId, name, color: selectedColor });
+    state.categories.push({ id: newId, name, color: selectedColor, labelColor, size });
     state.layout[newId] = {
       x: W/2 + (Math.random() - 0.5) * 500,
       y: H/2 + (Math.random() - 0.5) * 350
@@ -1022,6 +1056,7 @@ function openAddNode() {
   document.getElementById("node-modal-title").textContent = "Add Node";
   document.getElementById("node-modal-save").textContent = "Add";
   document.getElementById("node-label-input").value = "";
+  document.getElementById("node-text-color").value = "#ffffff";
   populateCatSelect(selectedCatId);
   openModal("node-modal");
   setTimeout(() => document.getElementById("node-label-input").focus(), 50);
@@ -1034,6 +1069,7 @@ function openEditNode(id) {
   document.getElementById("node-modal-title").textContent = "Edit Node";
   document.getElementById("node-modal-save").textContent = "Save";
   document.getElementById("node-label-input").value = n.label;
+  document.getElementById("node-text-color").value = n.textColor || "#ffffff";
   populateCatSelect(n.cat);
   openModal("node-modal");
   setTimeout(() => document.getElementById("node-label-input").focus(), 50);
@@ -1054,12 +1090,13 @@ function saveNode() {
   const label = document.getElementById("node-label-input").value.trim();
   const cat   = document.getElementById("node-cat-select").value;
   if (!label) { shake("node-label-input"); return; }
+  const textColor = document.getElementById("node-text-color").value || "#ffffff";
   if (editingNodeId) {
     const n = state.nodes.find(x => x.id === editingNodeId);
-    n.label = label; n.cat = cat;
+    n.label = label; n.cat = cat; n.textColor = textColor;
     toast("Node updated");
   } else {
-    state.nodes.push({ id: uid(), label, cat });
+    state.nodes.push({ id: uid(), label, cat, textColor });
     toast("Node added");
   }
   closeModal("node-modal");
