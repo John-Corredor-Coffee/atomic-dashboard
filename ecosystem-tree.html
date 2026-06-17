@@ -535,12 +535,18 @@ function initSVG() {
 // ── Bubble rendering ──────────────────────────────────────────────────────────
 
 function renderBubbles() {
+  let dragOffset = { x: 0, y: 0 };
   const drag = d3.drag()
     .filter(() => !connectMode)
-    .on("start", function() { d3.select(this).raise(); })
+    .on("start", function(event, d) {
+      d3.select(this).raise();
+      const [px, py] = d3.pointer(event, gScene.node());
+      dragOffset = { x: px - d.x, y: py - d.y };
+    })
     .on("drag",  function(event, d) {
-      d.x += event.dx / currentTx.k;
-      d.y += event.dy / currentTx.k;
+      const [px, py] = d3.pointer(event, gScene.node());
+      d.x = px - dragOffset.x;
+      d.y = py - dragOffset.y;
       state.layout[d.id] = { x: d.x, y: d.y };
       d3.select(this).attr("transform", `translate(${d.x},${d.y})`);
       renderConnections();
