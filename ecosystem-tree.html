@@ -17,6 +17,8 @@
     --accent: #c47a2e;
     --danger: #c0392b;
     --success: #2e8c5a;
+    --connect: #3d7abf;
+    --move: #7b5ea7;
     --radius: 8px;
     --shadow: 0 2px 8px rgba(0,0,0,0.08);
   }
@@ -25,60 +27,54 @@
     background: var(--bg);
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     color: var(--text);
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
+    height: 100vh; display: flex; flex-direction: column; overflow: hidden;
   }
 
-  /* ── Top bar ── */
   header {
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    padding: 10px 20px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    flex-shrink: 0;
-    z-index: 10;
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    padding: 10px 20px; display: flex; align-items: center;
+    gap: 10px; flex-shrink: 0; z-index: 10;
   }
   header h1 { font-size: 15px; font-weight: 700; letter-spacing: 0.02em; white-space: nowrap; }
   header span { font-size: 12px; color: var(--text-muted); white-space: nowrap; }
   .spacer { flex: 1; }
+
   .btn {
-    display: inline-flex; align-items: center; gap: 6px;
-    padding: 6px 13px; border-radius: var(--radius);
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 6px 12px; border-radius: var(--radius);
     font-size: 12px; font-weight: 600; cursor: pointer;
     border: 1px solid var(--border); background: var(--surface);
-    color: var(--text); transition: background 0.15s; white-space: nowrap;
+    color: var(--text); transition: background 0.15s, color 0.15s, border-color 0.15s;
+    white-space: nowrap; user-select: none;
   }
   .btn:hover { background: var(--bg); }
   .btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
   .btn.primary:hover { background: #b36a20; }
   .btn.success { background: var(--success); color: #fff; border-color: var(--success); }
   .btn.success:hover { background: #237049; }
-  .btn.danger { background: var(--danger); color: #fff; border-color: var(--danger); }
-  .btn.danger:hover { background: #a93226; }
+  .btn.connect { border-color: var(--connect); color: var(--connect); }
+  .btn.connect:hover { background: #eaf1f9; }
+  .btn.connect.active { background: var(--connect); color: #fff; border-color: var(--connect); }
+  .btn.connect.active:hover { background: #2f6399; }
+  .node-bubble.moving { opacity: 0.3; }
 
-  /* ── Main layout ── */
   .main { display: flex; flex: 1; overflow: hidden; }
 
   /* ── Sidebar ── */
   .sidebar {
-    width: 280px; background: var(--surface);
+    width: 272px; background: var(--surface);
     border-right: 1px solid var(--border);
     display: flex; flex-direction: column; overflow: hidden; flex-shrink: 0;
   }
   .sidebar-tabs { display: flex; border-bottom: 1px solid var(--border); }
   .tab-btn {
-    flex: 1; padding: 10px 6px; font-size: 11.5px; font-weight: 600;
+    flex: 1; padding: 10px 6px; font-size: 11px; font-weight: 600;
     text-align: center; cursor: pointer; border: none; background: none;
     color: var(--text-muted); border-bottom: 2px solid transparent;
     transition: color 0.15s, border-color 0.15s;
   }
   .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
-
-  .tab-panel { display: none; flex: 1; overflow-y: auto; padding: 14px; flex-direction: column; gap: 10px; }
+  .tab-panel { display: none; flex: 1; overflow-y: auto; padding: 12px; flex-direction: column; gap: 8px; }
   .tab-panel.active { display: flex; }
 
   .field { display: flex; flex-direction: column; gap: 4px; }
@@ -98,11 +94,10 @@
   .color-swatch:hover { transform: scale(1.15); }
   .color-swatch.selected { border-color: var(--text); }
 
-  /* Category list */
-  .cat-list { display: flex; flex-direction: column; gap: 6px; }
+  .cat-list { display: flex; flex-direction: column; gap: 5px; }
   .cat-item {
     display: flex; align-items: center; gap: 8px;
-    padding: 8px 10px; border: 1px solid var(--border);
+    padding: 7px 10px; border: 1px solid var(--border);
     border-radius: var(--radius); cursor: pointer; transition: background 0.12s;
   }
   .cat-item:hover { background: var(--bg); }
@@ -113,7 +108,6 @@
   .cat-delete { font-size: 14px; color: var(--text-muted); padding: 2px 4px; border-radius: 4px; cursor: pointer; line-height: 1; }
   .cat-delete:hover { color: var(--danger); background: #fdecea; }
 
-  /* Node list */
   .node-list { display: flex; flex-direction: column; gap: 4px; }
   .node-item {
     display: flex; align-items: center; gap: 8px;
@@ -122,59 +116,72 @@
   }
   .node-item:hover { background: var(--bg); }
   .node-label { font-size: 12px; flex: 1; }
-  .node-cat-badge {
-    font-size: 10px; padding: 2px 7px; border-radius: 20px;
-    color: #fff; font-weight: 600; white-space: nowrap;
-  }
+  .node-cat-badge { font-size: 10px; padding: 2px 7px; border-radius: 20px; color: #fff; font-weight: 600; white-space: nowrap; }
   .node-delete { font-size: 13px; color: var(--text-muted); padding: 2px 4px; border-radius: 4px; cursor: pointer; line-height: 1; }
   .node-delete:hover { color: var(--danger); background: #fdecea; }
 
-  /* ── Version history list ── */
+  /* Connections tab */
+  .conn-list { display: flex; flex-direction: column; gap: 4px; }
+  .conn-item {
+    display: flex; align-items: center; gap: 6px;
+    padding: 6px 10px; border: 1px solid var(--border);
+    border-radius: var(--radius); font-size: 12px;
+  }
+  .conn-item-label { flex: 1; color: var(--text-muted); }
+  .conn-item-label b { color: var(--text); }
+  .conn-item-del { font-size: 13px; color: var(--text-muted); padding: 2px 4px; border-radius: 4px; cursor: pointer; line-height: 1; }
+  .conn-item-del:hover { color: var(--danger); background: #fdecea; }
+  .conn-empty { font-size: 12px; color: var(--text-muted); text-align: center; padding: 20px 0; line-height: 1.7; }
+
+  /* History tab */
   .version-list { display: flex; flex-direction: column; gap: 8px; }
   .version-empty { font-size: 12px; color: var(--text-muted); text-align: center; padding: 24px 0; line-height: 1.6; }
-  .version-item {
-    border: 1px solid var(--border); border-radius: var(--radius);
-    padding: 10px 12px; background: var(--surface); transition: border-color 0.15s;
-  }
+  .version-item { border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 12px; }
   .version-item:hover { border-color: var(--accent); }
   .version-name { font-size: 13px; font-weight: 600; margin-bottom: 3px; }
-  .version-meta { font-size: 11px; color: var(--text-muted); margin-bottom: 8px; }
-  .version-actions { display: flex; gap: 6px; }
-  .version-btn {
-    font-size: 11px; font-weight: 600; padding: 4px 10px;
-    border-radius: 6px; cursor: pointer; border: 1px solid var(--border);
-    background: var(--bg); color: var(--text); transition: background 0.12s;
-  }
+  .version-meta { font-size: 11px; color: var(--text-muted); margin-bottom: 6px; }
+  .version-notes { font-size: 11px; color: var(--text-muted); margin-bottom: 4px; }
+  .version-stats { font-size: 11px; color: var(--text-muted); }
+  .version-actions { display: flex; gap: 6px; margin-top: 8px; }
+  .version-btn { font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 6px; cursor: pointer; border: 1px solid var(--border); background: var(--bg); color: var(--text); transition: background 0.12s; }
   .version-btn:hover { background: #ece9e4; }
   .version-btn.restore { background: #edf7f2; border-color: #b0d9c0; color: var(--success); }
   .version-btn.restore:hover { background: #d8f0e4; }
   .version-btn.del { background: #fdecea; border-color: #f0b9b5; color: var(--danger); }
   .version-btn.del:hover { background: #f9d5d3; }
-  .version-diff { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
 
-  /* ── Canvas ── */
+  /* Canvas */
   .canvas-wrap {
-    flex: 1; overflow: hidden; display: flex;
-    align-items: center; justify-content: center;
-    background: var(--bg); position: relative;
+    flex: 1; overflow: hidden; position: relative;
+    background: var(--bg);
   }
-  #tree-svg { width: 100%; height: 100%; }
-  .link { fill: none; stroke: #ccc; stroke-width: 1.4; }
-  .node-circle { stroke-width: 1.5; cursor: pointer; }
-  .node-text { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
-  .node-text.root { font-weight: 700; font-size: 13px; fill: #fff; text-anchor: middle; dominant-baseline: middle; }
-  .node-text.branch { font-weight: 600; font-size: 12px; }
-  .node-text.leaf { font-size: 10.5px; fill: #555; }
+  #tree-svg { width: 100%; height: 100%; display: block; }
 
-  /* ── Tooltip ── */
+  /* SVG elements */
+  .cat-bubble { transition: filter 0.15s; }
+  .cat-bubble:hover { filter: brightness(1.05); }
+  .node-bubble { transition: filter 0.15s; }
+
+  /* Tooltip */
   .tooltip {
     position: absolute; background: var(--surface); border: 1px solid var(--border);
-    border-radius: var(--radius); padding: 8px 12px; font-size: 12px;
+    border-radius: var(--radius); padding: 7px 11px; font-size: 12px;
     box-shadow: var(--shadow); pointer-events: none; opacity: 0;
-    transition: opacity 0.15s; white-space: nowrap; z-index: 100;
+    transition: opacity 0.12s; white-space: nowrap; z-index: 100;
   }
 
-  /* ── Modal ── */
+  /* Mode banners */
+  .mode-banner {
+    position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+    padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 600;
+    pointer-events: none; opacity: 0; transition: opacity 0.2s; z-index: 50;
+    white-space: nowrap;
+  }
+  .mode-banner.show { opacity: 1; }
+  .connect-banner { background: var(--connect); color: #fff; }
+  .move-banner    { background: var(--move);    color: #fff; top: 42px; }
+
+  /* Modal */
   .modal-overlay {
     display: none; position: fixed; inset: 0;
     background: rgba(0,0,0,0.35); z-index: 200;
@@ -189,7 +196,7 @@
   .modal .field { margin-bottom: 12px; }
   .modal-actions { display: flex; gap: 8px; margin-top: 16px; justify-content: flex-end; }
 
-  /* ── Toast ── */
+  /* Toast */
   .toast {
     position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(10px);
     background: #1a1a1a; color: #fff; padding: 8px 18px; border-radius: 20px;
@@ -199,18 +206,18 @@
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
   .hint-bar {
-    position: absolute; bottom: 12px; right: 16px;
+    position: absolute; bottom: 10px; right: 14px;
     font-size: 11px; color: var(--text-muted); pointer-events: none;
   }
 </style>
 </head>
 <body>
 
-<!-- Header -->
 <header>
   <h1>Atomic — Software Ecosystem</h1>
   <span id="node-count"></span>
   <div class="spacer"></div>
+  <button class="btn connect" id="connect-btn" onclick="toggleConnectMode()">⬡ Connect</button>
   <button class="btn" onclick="exportJSON()">⬇ Export</button>
   <button class="btn" onclick="importClick()">⬆ Import</button>
   <input type="file" id="import-input" accept=".json" style="display:none" onchange="importJSON(event)">
@@ -220,50 +227,45 @@
 </header>
 
 <div class="main">
-  <!-- Sidebar -->
   <div class="sidebar">
     <div class="sidebar-tabs">
-      <button class="tab-btn active" onclick="switchTab('categories', this)">Categories</button>
-      <button class="tab-btn" onclick="switchTab('nodes', this)">Nodes</button>
-      <button class="tab-btn" onclick="switchTab('history', this)">History</button>
+      <button class="tab-btn active" onclick="switchTab('categories',this)">Categories</button>
+      <button class="tab-btn" onclick="switchTab('nodes',this)">Nodes</button>
+      <button class="tab-btn" onclick="switchTab('connections',this)">Links</button>
+      <button class="tab-btn" onclick="switchTab('history',this)">History</button>
     </div>
-
     <div class="tab-panel active" id="tab-categories">
       <div class="cat-list" id="cat-list"></div>
     </div>
-
     <div class="tab-panel" id="tab-nodes">
       <div class="field">
         <input type="text" id="node-search" placeholder="Search nodes…" oninput="renderNodeList()">
       </div>
       <div class="node-list" id="node-list"></div>
     </div>
-
+    <div class="tab-panel" id="tab-connections">
+      <div class="conn-list" id="conn-list"></div>
+    </div>
     <div class="tab-panel" id="tab-history">
       <div class="version-list" id="version-list"></div>
     </div>
   </div>
 
-  <!-- Chart -->
   <div class="canvas-wrap" id="canvas-wrap">
     <svg id="tree-svg"></svg>
     <div class="tooltip" id="tooltip"></div>
-    <div class="hint-bar">Scroll to zoom · Drag to pan · Click node to edit</div>
+    <div class="mode-banner connect-banner" id="connect-banner">⬡ Connect mode — click a node to start</div>
+    <div class="mode-banner move-banner"    id="move-banner">✥ Move mode — drop onto a category bubble · ESC to cancel</div>
+    <div class="hint-bar">Drag bubbles · Scroll to zoom · ⬡ Connect to link nodes</div>
   </div>
 </div>
 
-<!-- Add/Edit Category Modal -->
+<!-- Category Modal -->
 <div class="modal-overlay" id="cat-modal">
   <div class="modal">
     <h2 id="cat-modal-title">Add Category</h2>
-    <div class="field">
-      <label>Category Name</label>
-      <input type="text" id="cat-name-input" placeholder="e.g. Analytics">
-    </div>
-    <div class="field">
-      <label>Color</label>
-      <div class="color-row" id="color-swatches"></div>
-    </div>
+    <div class="field"><label>Name</label><input type="text" id="cat-name-input" placeholder="e.g. Analytics"></div>
+    <div class="field"><label>Color</label><div class="color-row" id="color-swatches"></div></div>
     <div class="modal-actions">
       <button class="btn" onclick="closeModal('cat-modal')">Cancel</button>
       <button class="btn primary" id="cat-modal-save" onclick="saveCategory()">Add</button>
@@ -271,18 +273,12 @@
   </div>
 </div>
 
-<!-- Add/Edit Node Modal -->
+<!-- Node Modal -->
 <div class="modal-overlay" id="node-modal">
   <div class="modal">
     <h2 id="node-modal-title">Add Node</h2>
-    <div class="field">
-      <label>Node Label</label>
-      <input type="text" id="node-label-input" placeholder="e.g. Order Tracking">
-    </div>
-    <div class="field">
-      <label>Category</label>
-      <select id="node-cat-select"></select>
-    </div>
+    <div class="field"><label>Label</label><input type="text" id="node-label-input" placeholder="e.g. Order Tracking"></div>
+    <div class="field"><label>Category</label><select id="node-cat-select"></select></div>
     <div class="modal-actions">
       <button class="btn" onclick="closeModal('node-modal')">Cancel</button>
       <button class="btn primary" id="node-modal-save" onclick="saveNode()">Add</button>
@@ -294,14 +290,8 @@
 <div class="modal-overlay" id="version-modal">
   <div class="modal">
     <h2>Save Version</h2>
-    <div class="field">
-      <label>Version Name</label>
-      <input type="text" id="version-name-input" placeholder="e.g. Q3 2026 baseline">
-    </div>
-    <div class="field">
-      <label>Notes (optional)</label>
-      <input type="text" id="version-notes-input" placeholder="What changed?">
-    </div>
+    <div class="field"><label>Name</label><input type="text" id="version-name-input" placeholder="e.g. Q3 2026 baseline"></div>
+    <div class="field"><label>Notes (optional)</label><input type="text" id="version-notes-input" placeholder="What changed?"></div>
     <div class="modal-actions">
       <button class="btn" onclick="closeModal('version-modal')">Cancel</button>
       <button class="btn success" onclick="confirmSaveVersion()">Save</button>
@@ -309,15 +299,14 @@
   </div>
 </div>
 
-<!-- Restore Confirm Modal -->
+<!-- Restore Modal -->
 <div class="modal-overlay" id="restore-modal">
   <div class="modal">
     <h2>Restore Version</h2>
-    <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;line-height:1.5">
-      This will replace your current diagram with the saved version.<br>
-      Your current state will be auto-saved as <b>"Before restore"</b> first.
+    <p style="font-size:13px;color:var(--text-muted);margin-bottom:14px;line-height:1.5">
+      Current state will be auto-saved as <b>"Before restore"</b> first.
     </p>
-    <div id="restore-preview" style="font-size:12px;background:var(--bg);border-radius:var(--radius);padding:10px 12px;margin-bottom:4px;color:var(--text-muted)"></div>
+    <div id="restore-preview" style="font-size:12px;background:var(--bg);border-radius:var(--radius);padding:10px 12px;color:var(--text-muted)"></div>
     <div class="modal-actions">
       <button class="btn" onclick="closeModal('restore-modal')">Cancel</button>
       <button class="btn success" onclick="confirmRestore()">Restore</button>
@@ -325,70 +314,92 @@
   </div>
 </div>
 
-<!-- Toast -->
 <div class="toast" id="toast"></div>
 
 <script>
-// ── Data ─────────────────────────────────────────────────────────────────────
+// ── Constants ─────────────────────────────────────────────────────────────────
 
-const PALETTE = [
+const NODE_R   = 22;   // node circle radius
+const CAT_PAD  = 18;   // padding from cat edge to node edge
+const PALETTE  = [
   "#c47a2e","#3d7abf","#2e8c5a","#7b5ea7","#b05252","#4a8fa8",
   "#e07b3f","#5a9e6f","#8c6db5","#3a7a6a","#c0394b","#6b7fc4",
   "#a0733a","#5b9fd4","#e0a030","#687a3a"
 ];
-
 const MAX_VERSIONS = 30;
-const STORAGE_KEY  = "atomic-ecosystem";
+const STORAGE_KEY  = "atomic-ecosystem-v2";
 const HISTORY_KEY  = "atomic-ecosystem-history";
+
+function getCatR(nodeCount) {
+  if (nodeCount === 0) return 58;
+  if (nodeCount === 1) return 66;
+  const innerR = (nodeCount * (NODE_R * 2 + 12)) / (2 * Math.PI);
+  return Math.max(72, Math.ceil(innerR + NODE_R + CAT_PAD));
+}
+
+// ── State ─────────────────────────────────────────────────────────────────────
 
 let selectedColor  = PALETTE[0];
 let editingCatId   = null;
 let editingNodeId  = null;
 let selectedCatId  = null;
+let connectMode    = false;
+let connectSource  = null; // nodeId
+let movingNode     = null; // nodeId being repositioned
+let mouseScenePos  = { x: 0, y: 0 };
+let currentTx      = d3.zoomIdentity;
 let pendingRestoreId = null;
 
-let state = loadState() || {
-  categories: [
-    { id: "commerce", name: "Shopify",              color: "#c47a2e" },
-    { id: "crm",      name: "HubSpot",              color: "#3d7abf" },
-    { id: "gws",      name: "Google Workspace",     color: "#2e8c5a" },
-    { id: "tools",    name: "GitHub Pages / Tools", color: "#7b5ea7" },
-    { id: "ops",      name: "Ops / Logistics",      color: "#b05252" },
-    { id: "ai",       name: "Claude / AI",          color: "#4a8fa8" }
-  ],
-  nodes: [
-    { id:"n1",  label:"Wholesale Store",      cat:"commerce" },
-    { id:"n2",  label:"B2B Portal",           cat:"commerce" },
-    { id:"n3",  label:"Products & Inventory", cat:"commerce" },
-    { id:"n4",  label:"Orders",               cat:"commerce" },
-    { id:"n5",  label:"Analytics",            cat:"commerce" },
-    { id:"n6",  label:"Discounts",            cat:"commerce" },
-    { id:"n7",  label:"Support Tickets",      cat:"crm" },
-    { id:"n8",  label:"CRM Contacts",         cat:"crm" },
-    { id:"n9",  label:"Companies",            cat:"crm" },
-    { id:"n10", label:"Campaigns",            cat:"crm" },
-    { id:"n11", label:"Gmail",                cat:"gws" },
-    { id:"n12", label:"Sheets",               cat:"gws" },
-    { id:"n13", label:"Drive",                cat:"gws" },
-    { id:"n14", label:"Docs",                 cat:"gws" },
-    { id:"n15", label:"Calendar",             cat:"gws" },
-    { id:"n16", label:"PAR Ordering",         cat:"tools" },
-    { id:"n17", label:"COGS Calculator",      cat:"tools" },
-    { id:"n18", label:"Wholesale Map",        cat:"tools" },
-    { id:"n19", label:"Training Form",        cat:"tools" },
-    { id:"n20", label:"Dashboard",            cat:"tools" },
-    { id:"n21", label:"Calendly",             cat:"ops" },
-    { id:"n22", label:"Training Requests",    cat:"ops" },
-    { id:"n23", label:"Order Cutoffs",        cat:"ops" },
-    { id:"n24", label:"UPS Ground",           cat:"ops" },
-    { id:"n25", label:"Mapline",              cat:"ops" },
-    { id:"n26", label:"Skills / Workflows",   cat:"ai" },
-    { id:"n27", label:"Ticket Drafting",      cat:"ai" },
-    { id:"n28", label:"Shopify Upload",       cat:"ai" },
-    { id:"n29", label:"Singletrack Update",   cat:"ai" },
-    { id:"n30", label:"Report Generation",    cat:"ai" }
-  ]
-};
+let state = loadState() || buildDefaultState();
+if (!state.connections) state.connections = [];
+if (!state.layout)      state.layout = {};
+
+function buildDefaultState() {
+  return {
+    categories: [
+      { id: "commerce", name: "Shopify",              color: "#c47a2e" },
+      { id: "crm",      name: "HubSpot",              color: "#3d7abf" },
+      { id: "gws",      name: "Google Workspace",     color: "#2e8c5a" },
+      { id: "tools",    name: "GitHub Pages / Tools", color: "#7b5ea7" },
+      { id: "ops",      name: "Ops / Logistics",      color: "#b05252" },
+      { id: "ai",       name: "Claude / AI",          color: "#4a8fa8" }
+    ],
+    nodes: [
+      { id:"n1",  label:"Wholesale Store",      cat:"commerce" },
+      { id:"n2",  label:"B2B Portal",           cat:"commerce" },
+      { id:"n3",  label:"Products & Inventory", cat:"commerce" },
+      { id:"n4",  label:"Orders",               cat:"commerce" },
+      { id:"n5",  label:"Analytics",            cat:"commerce" },
+      { id:"n6",  label:"Discounts",            cat:"commerce" },
+      { id:"n7",  label:"Support Tickets",      cat:"crm" },
+      { id:"n8",  label:"CRM Contacts",         cat:"crm" },
+      { id:"n9",  label:"Companies",            cat:"crm" },
+      { id:"n10", label:"Campaigns",            cat:"crm" },
+      { id:"n11", label:"Gmail",                cat:"gws" },
+      { id:"n12", label:"Sheets",               cat:"gws" },
+      { id:"n13", label:"Drive",                cat:"gws" },
+      { id:"n14", label:"Docs",                 cat:"gws" },
+      { id:"n15", label:"Calendar",             cat:"gws" },
+      { id:"n16", label:"PAR Ordering",         cat:"tools" },
+      { id:"n17", label:"COGS Calculator",      cat:"tools" },
+      { id:"n18", label:"Wholesale Map",        cat:"tools" },
+      { id:"n19", label:"Training Form",        cat:"tools" },
+      { id:"n20", label:"Dashboard",            cat:"tools" },
+      { id:"n21", label:"Calendly",             cat:"ops" },
+      { id:"n22", label:"Training Requests",    cat:"ops" },
+      { id:"n23", label:"Order Cutoffs",        cat:"ops" },
+      { id:"n24", label:"UPS Ground",           cat:"ops" },
+      { id:"n25", label:"Mapline",              cat:"ops" },
+      { id:"n26", label:"Skills / Workflows",   cat:"ai" },
+      { id:"n27", label:"Ticket Drafting",      cat:"ai" },
+      { id:"n28", label:"Shopify Upload",       cat:"ai" },
+      { id:"n29", label:"Singletrack Update",   cat:"ai" },
+      { id:"n30", label:"Report Generation",    cat:"ai" }
+    ],
+    connections: [],
+    layout: {}
+  };
+}
 
 function loadState() {
   try { return JSON.parse(localStorage.getItem(STORAGE_KEY)); } catch { return null; }
@@ -399,230 +410,469 @@ function saveState() {
 function loadHistory() {
   try { return JSON.parse(localStorage.getItem(HISTORY_KEY)) || []; } catch { return []; }
 }
-function saveHistory(h) {
-  localStorage.setItem(HISTORY_KEY, JSON.stringify(h));
-}
+function saveHistory(h) { localStorage.setItem(HISTORY_KEY, JSON.stringify(h)); }
 function uid() { return "id" + Math.random().toString(36).slice(2, 9); }
 function fmtDate(iso) {
   const d = new Date(iso);
-  return d.toLocaleDateString("en-US", { month:"short", day:"numeric", year:"numeric" })
-    + " · " + d.toLocaleTimeString("en-US", { hour:"numeric", minute:"2-digit" });
+  return d.toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})
+    + " · " + d.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit"});
 }
 
-// ── Version history ───────────────────────────────────────────────────────────
+// ── Node position helpers ─────────────────────────────────────────────────────
 
-function openSaveVersion() {
-  document.getElementById("version-name-input").value = "";
-  document.getElementById("version-notes-input").value = "";
-  openModal("version-modal");
-  setTimeout(() => document.getElementById("version-name-input").focus(), 50);
-}
+let nodeLocalPos = {}; // { nodeId: {x,y} } relative to category center
 
-function confirmSaveVersion() {
-  const name  = document.getElementById("version-name-input").value.trim();
-  const notes = document.getElementById("version-notes-input").value.trim();
-  if (!name) { shake("version-name-input"); return; }
-  pushVersion(name, notes);
-  closeModal("version-modal");
-  toast("Version saved");
-  renderVersionList();
-}
-
-function pushVersion(name, notes, snapshot) {
-  const h = loadHistory();
-  h.unshift({
-    id: uid(),
-    name,
-    notes: notes || "",
-    savedAt: new Date().toISOString(),
-    cats: (snapshot || state).categories.length,
-    nodes: (snapshot || state).nodes.length,
-    state: JSON.parse(JSON.stringify(snapshot || state))
-  });
-  if (h.length > MAX_VERSIONS) h.length = MAX_VERSIONS;
-  saveHistory(h);
-}
-
-function renderVersionList() {
-  const h  = loadHistory();
-  const el = document.getElementById("version-list");
-  el.innerHTML = "";
-
-  if (!h.length) {
-    el.innerHTML = `<div class="version-empty">No saved versions yet.<br>Click <b>💾 Save Version</b> to snapshot<br>the current diagram.</div>`;
-    return;
-  }
-
-  h.forEach(v => {
-    const div = document.createElement("div");
-    div.className = "version-item";
-    div.innerHTML = `
-      <div class="version-name">${v.name}</div>
-      <div class="version-meta">${fmtDate(v.savedAt)}</div>
-      ${v.notes ? `<div class="version-diff">${v.notes}</div>` : ""}
-      <div class="version-diff">${v.cats} categories · ${v.nodes} nodes</div>
-      <div class="version-actions" style="margin-top:8px">
-        <button class="version-btn restore" onclick="openRestore('${v.id}')">↩ Restore</button>
-        <button class="version-btn" onclick="exportVersion('${v.id}')">⬇ Export</button>
-        <button class="version-btn del" onclick="deleteVersion('${v.id}')">✕</button>
-      </div>
-    `;
-    el.appendChild(div);
+function computeNodeLocalPositions() {
+  nodeLocalPos = {};
+  state.categories.forEach(cat => {
+    const nodes = state.nodes.filter(n => n.cat === cat.id);
+    if (!nodes.length) return;
+    if (nodes.length === 1) { nodeLocalPos[nodes[0].id] = { x: 0, y: 0 }; return; }
+    const catR   = getCatR(nodes.length);
+    const innerR = catR - NODE_R - CAT_PAD;
+    nodes.forEach((n, i) => {
+      const angle = (2 * Math.PI * i / nodes.length) - Math.PI / 2;
+      nodeLocalPos[n.id] = { x: innerR * Math.cos(angle), y: innerR * Math.sin(angle) };
+    });
   });
 }
 
-function openRestore(id) {
-  const h = loadHistory();
-  const v = h.find(x => x.id === id);
-  if (!v) return;
-  pendingRestoreId = id;
-  document.getElementById("restore-preview").textContent =
-    `Restoring: "${v.name}" — ${fmtDate(v.savedAt)}`;
-  openModal("restore-modal");
+function getNodeWorldPos(nodeId) {
+  const node = state.nodes.find(n => n.id === nodeId);
+  if (!node) return null;
+  const cp = state.layout[node.cat];
+  const lp = nodeLocalPos[nodeId];
+  if (!cp || !lp) return null;
+  return { x: cp.x + lp.x, y: cp.y + lp.y };
 }
 
-function confirmRestore() {
-  const h = loadHistory();
-  const v = h.find(x => x.id === pendingRestoreId);
-  if (!v) return;
-  pushVersion("Before restore", `Auto-saved before restoring "${v.name}"`);
-  state = JSON.parse(JSON.stringify(v.state));
-  closeModal("restore-modal");
-  persist();
-  renderVersionList();
-  toast(`Restored "${v.name}"`);
+function initLayout() {
+  const wrap = document.getElementById("canvas-wrap");
+  const W = wrap.clientWidth || 900;
+  const H = wrap.clientHeight || 650;
+  const cats = state.categories.filter(c => !state.layout[c.id]);
+  if (!cats.length) return;
+  const total = state.categories.length;
+  const r = Math.min(W, H) * 0.32;
+  state.categories.forEach((cat, i) => {
+    if (!state.layout[cat.id]) {
+      const angle = (2 * Math.PI * i / total) - Math.PI / 2;
+      state.layout[cat.id] = { x: W/2 + r * Math.cos(angle), y: H/2 + r * Math.sin(angle) };
+    }
+  });
 }
 
-function deleteVersion(id) {
-  const h = loadHistory();
-  const v = h.find(x => x.id === id);
-  if (!v || !confirm(`Delete saved version "${v.name}"?`)) return;
-  saveHistory(h.filter(x => x.id !== id));
-  renderVersionList();
-  toast("Version deleted");
-}
+// ── SVG setup ─────────────────────────────────────────────────────────────────
 
-function exportVersion(id) {
-  const h = loadHistory();
-  const v = h.find(x => x.id === id);
-  if (!v) return;
-  const blob = new Blob([JSON.stringify(v.state, null, 2)], { type: "application/json" });
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = `atomic-ecosystem-${v.name.replace(/\s+/g,"-").toLowerCase()}.json`;
-  a.click();
-}
+let svgEl, gScene, gConns, gBubbles, gFloating, ghostLine;
 
-// ── Tree rendering ────────────────────────────────────────────────────────────
-
-let svgEl, gMain;
-const margin = 80;
-
-function buildTreeData() {
-  return {
-    name: "Atomic",
-    children: state.categories.map(cat => ({
-      id: cat.id, name: cat.name, color: cat.color, category: cat.id,
-      children: state.nodes
-        .filter(n => n.cat === cat.id)
-        .map(n => ({ id: n.id, name: n.label, color: cat.color, category: cat.id, isLeaf: true }))
-    }))
-  };
-}
-
-function renderTree() {
+function initSVG() {
   const wrap = document.getElementById("canvas-wrap");
   const W = wrap.clientWidth, H = wrap.clientHeight;
-  const R = Math.min(W, H) / 2 - margin;
 
   d3.select("#tree-svg").selectAll("*").remove();
-  svgEl = d3.select("#tree-svg").attr("viewBox", `0 0 ${W} ${H}`);
+  svgEl = d3.select("#tree-svg");
 
-  const zoom = d3.zoom().scaleExtent([0.3, 3]).on("zoom", e => gMain.attr("transform", e.transform));
+  const zoom = d3.zoom().scaleExtent([0.15, 4])
+    .on("zoom", e => { currentTx = e.transform; gScene.attr("transform", e.transform); });
   svgEl.call(zoom);
 
-  gMain = svgEl.append("g").attr("transform", `translate(${W/2},${H/2})`);
+  svgEl.on("click", function(event) {
+    if (movingNode) {
+      // Background click cancels the move
+      movingNode = null;
+      clearFloatingNode();
+      updateMoveBanner();
+      renderAll();
+      return;
+    }
+    if (!connectMode || event.target !== svgEl.node()) return;
+    connectSource = null;
+    renderConnections();
+    clearGhostLine();
+    updateConnectBanner();
+  });
 
-  const treeData = buildTreeData();
-  if (!treeData.children.length) return;
+  svgEl.on("mousemove", function(event) {
+    if (!connectMode && !movingNode) return;
+    const [mx, my] = d3.pointer(event, gScene.node());
+    mouseScenePos = { x: mx, y: my };
+    if (connectMode && connectSource) updateGhostLine();
+    if (movingNode) updateFloatingNode();
+  });
 
-  const tree = d3.tree()
-    .size([2 * Math.PI, R])
-    .separation((a, b) => (a.parent === b.parent ? 1 : 2) / a.depth);
-
-  const root = tree(d3.hierarchy(treeData));
-
-  gMain.append("g")
-    .selectAll("path").data(root.links()).join("path")
-    .attr("class", "link")
-    .attr("d", d3.linkRadial().angle(d => d.x).radius(d => d.y));
-
-  const node = gMain.append("g")
-    .selectAll("g").data(root.descendants()).join("g")
-    .attr("class", "node-g")
-    .attr("transform", d =>
-      d.depth === 0 ? "translate(0,0)"
-        : `rotate(${d.x * 180 / Math.PI - 90}) translate(${d.y},0)`)
-    .on("click", (event, d) => {
-      event.stopPropagation();
-      if (d.depth === 1) openEditCategory(d.data.id);
-      if (d.depth === 2) openEditNode(d.data.id);
-    })
-    .on("mouseover", (event, d) => {
-      if (d.depth === 0) return;
-      const tip = document.getElementById("tooltip");
-      tip.style.opacity = "1";
-      tip.innerHTML = d.depth === 1
-        ? `<b>${d.data.name}</b> — ${d.children?.length || 0} nodes · <i>click to edit</i>`
-        : `${d.data.name} <span style="color:#999">· click to edit</span>`;
-    })
-    .on("mousemove", event => {
-      const tip  = document.getElementById("tooltip");
-      const wrap = document.getElementById("canvas-wrap").getBoundingClientRect();
-      tip.style.left = (event.clientX - wrap.left + 12) + "px";
-      tip.style.top  = (event.clientY - wrap.top  + 12) + "px";
-    })
-    .on("mouseout", () => { document.getElementById("tooltip").style.opacity = "0"; });
-
-  node.append("circle")
-    .attr("class", "node-circle")
-    .attr("r", d => d.depth === 0 ? 24 : d.depth === 1 ? 8 : 4.5)
-    .attr("fill", d => {
-      if (d.depth === 0) return "#1a1a1a";
-      const cat = state.categories.find(c => c.id === d.data.category);
-      return cat ? cat.color : "#aaa";
-    })
-    .attr("stroke", d => {
-      if (d.depth === 0) return "#fff";
-      const cat = state.categories.find(c => c.id === d.data.category);
-      if (!cat) return "#888";
-      return d3.color(cat.color).darker(0.5);
-    });
-
-  node.filter(d => d.depth === 0).append("text").attr("class", "node-text root").text("Atomic");
-
-  node.filter(d => d.depth === 1).append("text")
-    .attr("class", "node-text branch")
-    .attr("dy", "0.31em")
-    .attr("x", d => d.x < Math.PI ? 14 : -14)
-    .attr("text-anchor", d => d.x < Math.PI ? "start" : "end")
-    .attr("transform", d => d.x >= Math.PI ? "rotate(180)" : null)
-    .style("fill", d => { const cat = state.categories.find(c => c.id === d.data.id); return cat ? cat.color : "#333"; })
-    .text(d => d.data.name);
-
-  node.filter(d => d.depth === 2).append("text")
-    .attr("class", "node-text leaf")
-    .attr("dy", "0.31em")
-    .attr("x", d => d.x < Math.PI ? 9 : -9)
-    .attr("text-anchor", d => d.x < Math.PI ? "start" : "end")
-    .attr("transform", d => d.x >= Math.PI ? "rotate(180)" : null)
-    .text(d => d.data.name);
-
-  document.getElementById("node-count").textContent =
-    `${state.categories.length} categories · ${state.nodes.length} nodes`;
+  gScene    = svgEl.append("g").attr("id", "scene");
+  gConns    = gScene.append("g").attr("id", "conns-layer");
+  gBubbles  = gScene.append("g").attr("id", "bubbles-layer");
+  gFloating = gScene.append("g").attr("id", "floating-layer");
+  ghostLine = gConns.append("line")
+    .attr("stroke", "#3d7abf").attr("stroke-width", 1.8)
+    .attr("stroke-dasharray", "6,4")
+    .style("pointer-events", "none").style("display", "none");
 }
 
-// ── Sidebar ───────────────────────────────────────────────────────────────────
+// ── Bubble rendering ──────────────────────────────────────────────────────────
+
+function renderBubbles() {
+  const drag = d3.drag()
+    .filter(() => !connectMode)
+    .on("start", function() { d3.select(this).raise(); })
+    .on("drag",  function(event, d) {
+      d.x += event.dx / currentTx.k;
+      d.y += event.dy / currentTx.k;
+      state.layout[d.id] = { x: d.x, y: d.y };
+      d3.select(this).attr("transform", `translate(${d.x},${d.y})`);
+      renderConnections();
+      updateGhostLine();
+    })
+    .on("end", () => saveState());
+
+  const catData = state.categories.map(cat => ({
+    ...cat,
+    x: state.layout[cat.id]?.x || 0,
+    y: state.layout[cat.id]?.y || 0,
+    catNodes: state.nodes.filter(n => n.cat === cat.id)
+  }));
+
+  gBubbles.selectAll(".cat-g").remove();
+
+  const groups = gBubbles.selectAll(".cat-g")
+    .data(catData, d => d.id)
+    .join("g")
+    .attr("class", "cat-g")
+    .attr("transform", d => `translate(${d.x},${d.y})`)
+    .call(drag)
+    .style("cursor", () => connectMode ? "default" : "grab");
+
+  // Outer bubble
+  groups.append("circle")
+    .attr("class", "cat-bubble")
+    .attr("r", d => getCatR(d.catNodes.length))
+    .attr("fill",         d => d.color + "1a")
+    .attr("stroke",       d => d.color)
+    .attr("stroke-width", 2)
+    .style("cursor", () => connectMode ? "default" : "grab")
+    .on("click", function(event, d) {
+      event.stopPropagation();
+      if (movingNode) {
+        const node = state.nodes.find(n => n.id === movingNode);
+        if (node) { node.cat = d.id; toast(`Moved to ${d.name}`); }
+        movingNode = null;
+        clearFloatingNode();
+        updateMoveBanner();
+        persist();
+        return;
+      }
+      if (connectMode) {
+        connectSource = null;
+        renderConnections(); clearGhostLine(); updateConnectBanner();
+      } else {
+        openEditCategory(d.id);
+      }
+    });
+
+  // Category label (top inside edge)
+  groups.append("text")
+    .attr("y", d => -getCatR(d.catNodes.length) + 18)
+    .attr("text-anchor", "middle")
+    .attr("font-size", "12px").attr("font-weight", "700")
+    .attr("fill", d => d.color)
+    .attr("pointer-events", "none")
+    .text(d => d.name);
+
+  // Node circles
+  groups.each(function(catD) {
+    const g = d3.select(this);
+    const nData = catD.catNodes.map(n => ({
+      ...n,
+      lx: nodeLocalPos[n.id]?.x || 0,
+      ly: nodeLocalPos[n.id]?.y || 0,
+      color: catD.color
+    }));
+
+    const ngs = g.selectAll(".node-g")
+      .data(nData, d => d.id)
+      .join("g")
+      .attr("class", "node-g")
+      .attr("transform", d => `translate(${d.lx},${d.ly})`);
+
+    // Node fill circle
+    ngs.append("circle")
+      .attr("class", d => "node-bubble" + (movingNode === d.id ? " moving" : ""))
+      .attr("r", NODE_R)
+      .attr("fill",         d => d.color)
+      .attr("stroke",       d => connectMode && connectSource === d.id ? "#fff" : d3.color(d.color).darker(0.5))
+      .attr("stroke-width", d => connectMode && connectSource === d.id ? 3 : 1.5)
+      .style("cursor", "pointer");
+
+    // Source pulse ring (connect mode)
+    ngs.append("circle")
+      .attr("class", "source-ring")
+      .attr("r", NODE_R + 6)
+      .attr("fill", "none")
+      .attr("stroke", "#3d7abf")
+      .attr("stroke-width", 2)
+      .attr("stroke-dasharray", "4,3")
+      .attr("pointer-events", "none")
+      .style("display", d => connectMode && connectSource === d.id ? null : "none");
+
+    // Label inside node
+    ngs.append("text")
+      .attr("text-anchor", "middle").attr("dominant-baseline", "middle")
+      .attr("font-size", "9px").attr("font-weight", "600")
+      .attr("fill", "#fff").attr("pointer-events", "none")
+      .text(d => d.label.length > 11 ? d.label.slice(0,10) + "…" : d.label);
+
+    // Invisible larger hit target
+    ngs.append("circle")
+      .attr("r", NODE_R + 2).attr("fill", "transparent").attr("stroke", "none")
+      .style("cursor", "pointer")
+      .on("click", function(event, d) {
+        event.stopPropagation();
+        if (movingNode) {
+          // Clicking a node while moving cancels the move
+          movingNode = null; clearFloatingNode(); updateMoveBanner(); renderAll();
+          return;
+        }
+        if (connectMode) { handleConnectClick(d.id); }
+        else              { openEditNode(d.id); }
+      })
+      .on("dblclick", function(event, d) {
+        event.stopPropagation();
+        if (connectMode) return;
+        movingNode = d.id;
+        updateMoveBanner();
+        renderAll(); // dim the node in place
+      })
+      .on("mouseover", function(event, d) {
+        showTip(event,
+          movingNode === d.id ? "Double-click to move · click another category to drop"
+          : connectMode
+            ? (connectSource
+                ? connectSource === d.id ? "Click to cancel" : `Connect → ${d.label}`
+                : `Start from ${d.label}`)
+            : `${d.label} · click to edit · double-click to move`);
+      })
+      .on("mousemove", moveTip)
+      .on("mouseout",  hideTip);
+  });
+}
+
+// ── Connection rendering ──────────────────────────────────────────────────────
+
+function renderConnections() {
+  // Remove all except ghost line
+  gConns.selectAll(".conn-g").remove();
+  gConns.selectAll(".src-ring").remove();
+
+  // Draw source ring in scene space
+  if (connectMode && connectSource) {
+    const wp = getNodeWorldPos(connectSource);
+    if (wp) {
+      gConns.append("circle")
+        .attr("class", "src-ring")
+        .attr("cx", wp.x).attr("cy", wp.y)
+        .attr("r", NODE_R + 6).attr("fill", "none")
+        .attr("stroke", "#3d7abf").attr("stroke-width", 2)
+        .attr("stroke-dasharray", "4,3")
+        .style("pointer-events", "none");
+    }
+  }
+
+  state.connections.forEach(conn => {
+    const p1 = getNodeWorldPos(conn.from);
+    const p2 = getNodeWorldPos(conn.to);
+    if (!p1 || !p2) return;
+
+    const pathD = curvePath(p1, p2);
+    const mx = (p1.x + p2.x) / 2;
+    const my = (p1.y + p2.y) / 2;
+    const dx = p2.x - p1.x, dy = p2.y - p1.y;
+    const len = Math.sqrt(dx*dx + dy*dy) || 1;
+    const curve = Math.min(50, len * 0.25);
+    const midX = mx + (-dy/len)*curve*0.5;
+    const midY = my + (dx/len)*curve*0.5;
+
+    const cg = gConns.append("g").attr("class", "conn-g");
+
+    cg.append("path").attr("d", pathD)
+      .attr("fill","none").attr("stroke","#b8b0a8").attr("stroke-width", 1.8)
+      .attr("marker-end", null);
+
+    // Hit area + hover
+    cg.append("path").attr("d", pathD)
+      .attr("fill","none").attr("stroke","transparent").attr("stroke-width", 14)
+      .style("cursor","pointer")
+      .on("mouseover", function() {
+        cg.select("path").attr("stroke","#7a6e66");
+        cg.select(".del-btn").style("display", null);
+      })
+      .on("mouseout", function() {
+        cg.select("path").attr("stroke","#b8b0a8");
+        cg.select(".del-btn").style("display","none");
+      })
+      .on("click", function(event) {
+        event.stopPropagation();
+        deleteConnection(conn.id);
+      });
+
+    // Delete dot at midpoint
+    const delG = cg.append("g")
+      .attr("class","del-btn")
+      .attr("transform", `translate(${midX},${midY})`)
+      .style("display","none")
+      .style("cursor","pointer")
+      .on("click", function(event) { event.stopPropagation(); deleteConnection(conn.id); });
+    delG.append("circle").attr("r",9).attr("fill","#fff").attr("stroke","#ccc").attr("stroke-width",1);
+    delG.append("text").attr("text-anchor","middle").attr("dominant-baseline","middle")
+      .attr("font-size","11px").attr("fill","#888").text("✕");
+  });
+
+  // Keep ghost line on top
+  ghostLine.raise();
+}
+
+function curvePath(p1, p2) {
+  const dx = p2.x-p1.x, dy = p2.y-p1.y;
+  const len = Math.sqrt(dx*dx+dy*dy) || 1;
+  const c = Math.min(55, len*0.28);
+  const mx = (p1.x+p2.x)/2, my = (p1.y+p2.y)/2;
+  return `M${p1.x} ${p1.y} Q${mx-dy/len*c} ${my+dx/len*c} ${p2.x} ${p2.y}`;
+}
+
+function deleteConnection(id) {
+  state.connections = state.connections.filter(c => c.id !== id);
+  persist();
+}
+
+function updateGhostLine() {
+  if (!connectMode || !connectSource) { clearGhostLine(); return; }
+  const wp = getNodeWorldPos(connectSource);
+  if (!wp) { clearGhostLine(); return; }
+  ghostLine.style("display", null)
+    .attr("x1",wp.x).attr("y1",wp.y)
+    .attr("x2",mouseScenePos.x).attr("y2",mouseScenePos.y);
+}
+function clearGhostLine() { ghostLine?.style("display","none"); }
+
+// ── Moving node ───────────────────────────────────────────────────────────────
+
+function updateFloatingNode() {
+  if (!movingNode || !gFloating) return;
+  gFloating.selectAll("*").remove();
+  const node = state.nodes.find(n => n.id === movingNode);
+  const cat  = state.categories.find(c => c.id === node?.cat);
+  if (!node || !cat) return;
+
+  // Highlight nearest valid drop target
+  const target = getCatAtPos(mouseScenePos);
+  gBubbles.selectAll(".cat-bubble")
+    .attr("stroke-width", d => d.id === target ? 3.5 : 2)
+    .attr("filter",        d => d.id === target ? "brightness(1.12)" : null);
+
+  // Floating node follows cursor
+  const fg = gFloating.append("g")
+    .attr("transform", `translate(${mouseScenePos.x},${mouseScenePos.y})`)
+    .style("pointer-events", "none");
+  fg.append("circle").attr("r", NODE_R + 3)
+    .attr("fill", "none").attr("stroke", "#fff").attr("stroke-width", 2).attr("opacity", 0.6);
+  fg.append("circle").attr("r", NODE_R)
+    .attr("fill", cat.color).attr("stroke", d3.color(cat.color).darker(0.5)).attr("stroke-width", 1.5);
+  fg.append("text")
+    .attr("text-anchor","middle").attr("dominant-baseline","middle")
+    .attr("font-size","9px").attr("font-weight","600").attr("fill","#fff")
+    .text(node.label.length > 11 ? node.label.slice(0,10)+"…" : node.label);
+}
+
+function clearFloatingNode() {
+  gFloating?.selectAll("*").remove();
+  gBubbles?.selectAll(".cat-bubble").attr("stroke-width", 2).attr("filter", null);
+}
+
+function getCatAtPos(pos) {
+  for (const cat of state.categories) {
+    const cp = state.layout[cat.id];
+    if (!cp) continue;
+    const count = state.nodes.filter(n => n.cat === cat.id).length;
+    const r = getCatR(count);
+    const dx = pos.x - cp.x, dy = pos.y - cp.y;
+    if (dx*dx + dy*dy <= r*r) return cat.id;
+  }
+  return null;
+}
+
+function updateMoveBanner() {
+  document.getElementById("move-banner").classList.toggle("show", !!movingNode);
+}
+
+// ── Connect mode ──────────────────────────────────────────────────────────────
+
+function toggleConnectMode() {
+  connectMode = !connectMode;
+  connectSource = null;
+  document.getElementById("connect-btn").classList.toggle("active", connectMode);
+  document.getElementById("canvas-wrap").style.cursor = connectMode ? "crosshair" : "default";
+  updateConnectBanner();
+  renderAll();
+  if (!connectMode) clearGhostLine();
+}
+
+function updateConnectBanner() {
+  const banner = document.getElementById("connect-banner");
+  if (!connectMode) { banner.classList.remove("show"); return; }
+  banner.textContent = connectSource
+    ? "⬡ Click another node to link · Click same node or bubble to cancel"
+    : "⬡ Connect mode — click a node to start";
+  banner.classList.add("show");
+}
+
+function handleConnectClick(nodeId) {
+  if (!connectSource) {
+    connectSource = nodeId;
+    updateConnectBanner();
+    renderConnections();
+    updateGhostLine();
+  } else if (connectSource === nodeId) {
+    connectSource = null;
+    clearGhostLine();
+    updateConnectBanner();
+    renderConnections();
+  } else {
+    const exists = state.connections.some(c =>
+      (c.from === connectSource && c.to === nodeId) ||
+      (c.from === nodeId && c.to === connectSource));
+    if (!exists) {
+      state.connections.push({ id: uid(), from: connectSource, to: nodeId });
+      toast("Connection added");
+    } else {
+      toast("Already connected");
+    }
+    connectSource = null;
+    clearGhostLine();
+    updateConnectBanner();
+    persist();
+  }
+}
+
+// ── Main render ───────────────────────────────────────────────────────────────
+
+function renderAll() {
+  computeNodeLocalPositions();
+  renderBubbles();
+  renderConnections();
+  document.getElementById("node-count").textContent =
+    `${state.categories.length} categories · ${state.nodes.length} nodes · ${state.connections.length} links`;
+}
+
+function persist() {
+  saveState();
+  renderAll();
+  renderCatList();
+  renderNodeList();
+  renderConnList();
+}
+
+// ── Sidebar renders ───────────────────────────────────────────────────────────
 
 function renderCatList() {
   const el = document.getElementById("cat-list");
@@ -636,30 +886,46 @@ function renderCatList() {
       <div class="cat-dot" style="background:${cat.color}"></div>
       <span class="cat-name">${cat.name}</span>
       <span class="cat-count">${count}</span>
-      <span class="cat-delete" title="Delete" onclick="event.stopPropagation();deleteCategory('${cat.id}')">✕</span>
-    `;
+      <span class="cat-delete" title="Delete" onclick="event.stopPropagation();deleteCategory('${cat.id}')">✕</span>`;
     el.appendChild(div);
   });
 }
 
 function renderNodeList() {
-  const query = document.getElementById("node-search").value.toLowerCase();
+  const q = document.getElementById("node-search").value.toLowerCase();
   const el = document.getElementById("node-list");
   el.innerHTML = "";
-  state.nodes
-    .filter(n => !query || n.label.toLowerCase().includes(query))
-    .forEach(n => {
-      const cat = state.categories.find(c => c.id === n.cat);
-      const div = document.createElement("div");
-      div.className = "node-item";
-      div.onclick = () => openEditNode(n.id);
-      div.innerHTML = `
-        <span class="node-label">${n.label}</span>
-        ${cat ? `<span class="node-cat-badge" style="background:${cat.color}">${cat.name}</span>` : ""}
-        <span class="node-delete" title="Delete" onclick="event.stopPropagation();deleteNode('${n.id}')">✕</span>
-      `;
-      el.appendChild(div);
-    });
+  state.nodes.filter(n => !q || n.label.toLowerCase().includes(q)).forEach(n => {
+    const cat = state.categories.find(c => c.id === n.cat);
+    const div = document.createElement("div");
+    div.className = "node-item";
+    div.onclick = () => openEditNode(n.id);
+    div.innerHTML = `
+      <span class="node-label">${n.label}</span>
+      ${cat ? `<span class="node-cat-badge" style="background:${cat.color}">${cat.name}</span>` : ""}
+      <span class="node-delete" title="Delete" onclick="event.stopPropagation();deleteNode('${n.id}')">✕</span>`;
+    el.appendChild(div);
+  });
+}
+
+function renderConnList() {
+  const el = document.getElementById("conn-list");
+  el.innerHTML = "";
+  if (!state.connections.length) {
+    el.innerHTML = `<div class="conn-empty">No connections yet.<br>Use <b>⬡ Connect</b> to link nodes<br>across categories.</div>`;
+    return;
+  }
+  state.connections.forEach(c => {
+    const fromNode = state.nodes.find(n => n.id === c.from);
+    const toNode   = state.nodes.find(n => n.id === c.to);
+    if (!fromNode || !toNode) return;
+    const div = document.createElement("div");
+    div.className = "conn-item";
+    div.innerHTML = `
+      <span class="conn-item-label"><b>${fromNode.label}</b> → <b>${toNode.label}</b></span>
+      <span class="conn-item-del" onclick="deleteConnection('${c.id}')">✕</span>`;
+    el.appendChild(div);
+  });
 }
 
 function switchTab(name, btn) {
@@ -667,7 +933,8 @@ function switchTab(name, btn) {
   document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
   btn.classList.add("active");
   document.getElementById("tab-" + name).classList.add("active");
-  if (name === "history") renderVersionList();
+  if (name === "history")     renderVersionList();
+  if (name === "connections") renderConnList();
 }
 
 // ── Color swatches ────────────────────────────────────────────────────────────
@@ -721,7 +988,14 @@ function saveCategory() {
     cat.name = name; cat.color = selectedColor;
     toast("Category updated");
   } else {
-    state.categories.push({ id: uid(), name, color: selectedColor });
+    const newId = uid();
+    const wrap = document.getElementById("canvas-wrap");
+    const W = wrap.clientWidth || 900, H = wrap.clientHeight || 650;
+    state.categories.push({ id: newId, name, color: selectedColor });
+    state.layout[newId] = {
+      x: W/2 + (Math.random() - 0.5) * 500,
+      y: H/2 + (Math.random() - 0.5) * 350
+    };
     toast("Category added");
   }
   closeModal("cat-modal");
@@ -731,8 +1005,11 @@ function saveCategory() {
 function deleteCategory(id) {
   const cat = state.categories.find(c => c.id === id);
   if (!confirm(`Delete "${cat.name}" and all its nodes?`)) return;
-  state.categories = state.categories.filter(c => c.id !== id);
-  state.nodes      = state.nodes.filter(n => n.cat !== id);
+  const nodeIds = state.nodes.filter(n => n.cat === id).map(n => n.id);
+  state.categories  = state.categories.filter(c => c.id !== id);
+  state.nodes       = state.nodes.filter(n => n.cat !== id);
+  state.connections = state.connections.filter(c => !nodeIds.includes(c.from) && !nodeIds.includes(c.to));
+  delete state.layout[id];
   if (selectedCatId === id) selectedCatId = null;
   toast("Category deleted");
   persist();
@@ -791,11 +1068,111 @@ function saveNode() {
 
 function deleteNode(id) {
   state.nodes = state.nodes.filter(n => n.id !== id);
+  state.connections = state.connections.filter(c => c.from !== id && c.to !== id);
   toast("Node removed");
   persist();
 }
 
-// ── Modal helpers ─────────────────────────────────────────────────────────────
+// ── Version history ───────────────────────────────────────────────────────────
+
+function openSaveVersion() {
+  document.getElementById("version-name-input").value = "";
+  document.getElementById("version-notes-input").value = "";
+  openModal("version-modal");
+  setTimeout(() => document.getElementById("version-name-input").focus(), 50);
+}
+
+function confirmSaveVersion() {
+  const name  = document.getElementById("version-name-input").value.trim();
+  const notes = document.getElementById("version-notes-input").value.trim();
+  if (!name) { shake("version-name-input"); return; }
+  pushVersion(name, notes);
+  closeModal("version-modal");
+  toast("Version saved");
+  renderVersionList();
+}
+
+function pushVersion(name, notes, snapshot) {
+  const src = snapshot || state;
+  const h = loadHistory();
+  h.unshift({
+    id: uid(), name, notes: notes || "",
+    savedAt: new Date().toISOString(),
+    cats: src.categories.length,
+    nodes: src.nodes.length,
+    conns: (src.connections||[]).length,
+    state: JSON.parse(JSON.stringify(src))
+  });
+  if (h.length > MAX_VERSIONS) h.length = MAX_VERSIONS;
+  saveHistory(h);
+}
+
+function renderVersionList() {
+  const h  = loadHistory();
+  const el = document.getElementById("version-list");
+  el.innerHTML = "";
+  if (!h.length) {
+    el.innerHTML = `<div class="version-empty">No saved versions yet.<br>Click <b>💾 Save Version</b> to<br>snapshot the current diagram.</div>`;
+    return;
+  }
+  h.forEach(v => {
+    const div = document.createElement("div");
+    div.className = "version-item";
+    div.innerHTML = `
+      <div class="version-name">${v.name}</div>
+      <div class="version-meta">${fmtDate(v.savedAt)}</div>
+      ${v.notes ? `<div class="version-notes">${v.notes}</div>` : ""}
+      <div class="version-stats">${v.cats} categories · ${v.nodes} nodes · ${v.conns||0} links</div>
+      <div class="version-actions">
+        <button class="version-btn restore" onclick="openRestore('${v.id}')">↩ Restore</button>
+        <button class="version-btn" onclick="exportVersion('${v.id}')">⬇ Export</button>
+        <button class="version-btn del" onclick="deleteVersion('${v.id}')">✕</button>
+      </div>`;
+    el.appendChild(div);
+  });
+}
+
+function openRestore(id) {
+  const v = loadHistory().find(x => x.id === id);
+  if (!v) return;
+  pendingRestoreId = id;
+  document.getElementById("restore-preview").textContent =
+    `Restoring: "${v.name}" — ${fmtDate(v.savedAt)}`;
+  openModal("restore-modal");
+}
+
+function confirmRestore() {
+  const v = loadHistory().find(x => x.id === pendingRestoreId);
+  if (!v) return;
+  pushVersion("Before restore", `Auto-saved before restoring "${v.name}"`);
+  state = JSON.parse(JSON.stringify(v.state));
+  if (!state.connections) state.connections = [];
+  if (!state.layout)      state.layout = {};
+  closeModal("restore-modal");
+  persist();
+  renderVersionList();
+  toast(`Restored "${v.name}"`);
+}
+
+function deleteVersion(id) {
+  const v = loadHistory().find(x => x.id === id);
+  if (!v || !confirm(`Delete saved version "${v.name}"?`)) return;
+  saveHistory(loadHistory().filter(x => x.id !== id));
+  renderVersionList();
+  toast("Version deleted");
+}
+
+function exportVersion(id) {
+  const v = loadHistory().find(x => x.id === id);
+  if (!v) return;
+  const blob = new Blob([JSON.stringify(v.state, null, 2)], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `atomic-ecosystem-${v.name.replace(/\s+/g,"-").toLowerCase()}.json`;
+  a.click();
+}
+
+// ── Modals ────────────────────────────────────────────────────────────────────
 
 function openModal(id)  { document.getElementById(id).classList.add("open"); }
 function closeModal(id) { document.getElementById(id).classList.remove("open"); }
@@ -804,7 +1181,11 @@ document.querySelectorAll(".modal-overlay").forEach(el => {
   el.addEventListener("click", e => { if (e.target === el) el.classList.remove("open"); });
 });
 document.addEventListener("keydown", e => {
-  if (e.key === "Escape") document.querySelectorAll(".modal-overlay.open").forEach(m => m.classList.remove("open"));
+  if (e.key === "Escape") {
+    document.querySelectorAll(".modal-overlay.open").forEach(m => m.classList.remove("open"));
+    if (connectMode) toggleConnectMode();
+    if (movingNode) { movingNode = null; clearFloatingNode(); updateMoveBanner(); renderAll(); }
+  }
 });
 
 // ── Import / Export ───────────────────────────────────────────────────────────
@@ -830,31 +1211,37 @@ function importJSON(event) {
       if (!parsed.categories || !parsed.nodes) throw new Error();
       pushVersion("Before import", "Auto-saved before JSON import");
       state = parsed;
+      if (!state.connections) state.connections = [];
+      if (!state.layout)      state.layout = {};
       persist();
       renderVersionList();
       toast("Imported successfully");
-    } catch { alert("Invalid JSON file. Expected {categories, nodes} format."); }
+    } catch { alert("Invalid JSON file."); }
   };
   reader.readAsText(file);
   event.target.value = "";
 }
 
-// ── Utilities ─────────────────────────────────────────────────────────────────
+// ── Tooltip ───────────────────────────────────────────────────────────────────
 
-function persist() {
-  saveState();
-  renderTree();
-  renderCatList();
-  renderNodeList();
+function showTip(event, msg) {
+  const tip = document.getElementById("tooltip");
+  tip.textContent = msg; tip.style.opacity = "1";
+  moveTip(event);
 }
+function moveTip(event) {
+  const tip  = document.getElementById("tooltip");
+  const wrap = document.getElementById("canvas-wrap").getBoundingClientRect();
+  tip.style.left = (event.clientX - wrap.left + 12) + "px";
+  tip.style.top  = (event.clientY - wrap.top  + 12) + "px";
+}
+function hideTip() { document.getElementById("tooltip").style.opacity = "0"; }
 
 function toast(msg) {
   const el = document.getElementById("toast");
-  el.textContent = msg;
-  el.classList.add("show");
+  el.textContent = msg; el.classList.add("show");
   setTimeout(() => el.classList.remove("show"), 2000);
 }
-
 function shake(id) {
   const el = document.getElementById(id);
   el.style.borderColor = "#c0392b";
@@ -863,10 +1250,14 @@ function shake(id) {
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 
-window.addEventListener("resize", renderTree);
-renderTree();
+window.addEventListener("resize", () => { initSVG(); initLayout(); renderAll(); });
+
+initSVG();
+initLayout();
+renderAll();
 renderCatList();
 renderNodeList();
+renderConnList();
 </script>
 </body>
 </html>
