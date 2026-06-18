@@ -522,7 +522,7 @@ function initLayout() {
 
 // ── SVG setup ─────────────────────────────────────────────────────────────────
 
-let svgEl, gScene, gConns, gBubbles, gFloating, ghostLine;
+let svgEl, gScene, gConns, gBubbles, gConnHits, gFloating, ghostLine;
 
 function initSVG() {
   const wrap = document.getElementById("canvas-wrap");
@@ -570,6 +570,7 @@ function initSVG() {
   gScene    = svgEl.append("g").attr("id", "scene");
   gConns    = gScene.append("g").attr("id", "conns-layer");
   gBubbles  = gScene.append("g").attr("id", "bubbles-layer");
+  gConnHits = gScene.append("g").attr("id", "conn-hits-layer"); // hit areas above bubbles
   gFloating = gScene.append("g").attr("id", "floating-layer");
   ghostLine = gConns.append("line")
     .attr("stroke", "#3d7abf").attr("stroke-width", 1.8)
@@ -658,10 +659,14 @@ function renderBubbles() {
   let nodeDragOff = {x: 0, y: 0}, nodeMoved = false;
   const nodeDrag = d3.drag()
     .clickDistance(5)
-    .filter(() => !connectMode && !movingNode)
+    .filter(function(event) {
+      if (connectMode || movingNode) return false;
+      // Stop propagation here (earliest hook) so category drag doesn't also fire
+      event.sourceEvent.stopPropagation();
+      return true;
+    })
     .on("start", function(event, d) {
       nodeMoved = false;
-      event.sourceEvent.stopPropagation(); // don't trigger category drag
       const catPos = state.layout[d.cat];
       if (!catPos) return;
       const [px, py] = d3.pointer(event, gScene.node());
@@ -780,6 +785,7 @@ function renderConnections() {
   // Remove all except ghost line
   gConns.selectAll(".conn-g").remove();
   gConns.selectAll(".src-ring").remove();
+  gConnHits.selectAll(".conn-hit-g").remove();
 
   // Draw source ring in scene space
   if (connectMode && connectSource) {
@@ -809,23 +815,26 @@ function renderConnections() {
     const midX = mx + (-dy/len)*curve*0.5;
     const midY = my + (dx/len)*curve*0.5;
 
+    // Visible path in gConns (renders under bubbles — visual only)
     const cg = gConns.append("g").attr("class", "conn-g");
-
     cg.append("path").attr("class","conn-line").attr("d", pathD)
       .attr("fill","none").attr("stroke","#b8b0a8").attr("stroke-width", 1.8)
-      .attr("marker-end", "url(#arrowhead)");
+      .attr("marker-end", "url(#arrowhead)")
+      .style("pointer-events", "none");
 
-    // Hit area + hover
-    cg.append("path").attr("d", pathD)
+    // Hit area + delete button in gConnHits (renders above bubbles — interactive)
+    const hg = gConnHits.append("g").attr("class", "conn-hit-g");
+
+    hg.append("path").attr("d", pathD)
       .attr("fill","none").attr("stroke","transparent").attr("stroke-width", 14)
       .style("cursor","pointer")
       .on("mouseover", function() {
         cg.select(".conn-line").attr("stroke","#7a6e66");
-        cg.select(".del-btn").style("display", null);
+        hg.select(".del-btn").style("display", null);
       })
       .on("mouseout", function() {
         cg.select(".conn-line").attr("stroke","#b8b0a8");
-        cg.select(".del-btn").style("display","none");
+        hg.select(".del-btn").style("display","none");
       })
       .on("click", function(event) {
         event.stopPropagation();
@@ -833,7 +842,7 @@ function renderConnections() {
       });
 
     // Delete dot at midpoint
-    const delG = cg.append("g")
+    const delG = hg.append("g")
       .attr("class","del-btn")
       .attr("transform", `translate(${midX},${midY})`)
       .style("display","none")
