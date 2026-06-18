@@ -477,12 +477,20 @@ function computeNodeLocalPositions() {
   state.categories.forEach(cat => {
     const nodes = state.nodes.filter(n => n.cat === cat.id);
     if (!nodes.length) return;
-    if (nodes.length === 1) { nodeLocalPos[nodes[0].id] = { x: 0, y: 0 }; return; }
+    if (nodes.length === 1) {
+      const n = nodes[0];
+      nodeLocalPos[n.id] = n.manualX !== undefined ? { x: n.manualX, y: n.manualY } : { x: 0, y: 0 };
+      return;
+    }
     const catR   = getCatR(nodes.length, cat.size || 1);
     const innerR = catR - NODE_R - CAT_PAD;
     nodes.forEach((n, i) => {
-      const angle = (2 * Math.PI * i / nodes.length) - Math.PI / 2;
-      nodeLocalPos[n.id] = { x: innerR * Math.cos(angle), y: innerR * Math.sin(angle) };
+      if (n.manualX !== undefined) {
+        nodeLocalPos[n.id] = { x: n.manualX, y: n.manualY };
+      } else {
+        const angle = (2 * Math.PI * i / nodes.length) - Math.PI / 2;
+        nodeLocalPos[n.id] = { x: innerR * Math.cos(angle), y: innerR * Math.sin(angle) };
+      }
     });
   });
 }
@@ -550,6 +558,14 @@ function initSVG() {
     if (connectMode && connectSource) updateGhostLine();
     if (movingNode) updateFloatingNode();
   });
+
+  // Arrowhead marker
+  svgEl.append("defs").html(`
+    <marker id="arrowhead" viewBox="0 0 10 10" refX="8" refY="5"
+      markerWidth="5" markerHeight="5" orient="auto">
+      <path d="M 0 1 L 9 5 L 0 9 z" fill="context-stroke"/>
+    </marker>
+  `);
 
   gScene    = svgEl.append("g").attr("id", "scene");
   gConns    = gScene.append("g").attr("id", "conns-layer");
@@ -638,6 +654,43 @@ function renderBubbles() {
     .attr("pointer-events", "none")
     .text(d => d.name);
 
+  // Node drag (reposition within category)
+  let nodeDragOff = {x: 0, y: 0}, nodeMoved = false;
+  const nodeDrag = d3.drag()
+    .clickDistance(5)
+    .filter(() => !connectMode && !movingNode)
+    .on("start", function(event, d) {
+      nodeMoved = false;
+      event.sourceEvent.stopPropagation(); // don't trigger category drag
+      const catPos = state.layout[d.cat];
+      if (!catPos) return;
+      const [px, py] = d3.pointer(event, gScene.node());
+      const lp = nodeLocalPos[d.id] || {x: 0, y: 0};
+      nodeDragOff = { x: px - (catPos.x + lp.x), y: py - (catPos.y + lp.y) };
+    })
+    .on("drag", function(event, d) {
+      nodeMoved = true;
+      const catPos = state.layout[d.cat];
+      if (!catPos) return;
+      const [px, py] = d3.pointer(event, gScene.node());
+      let nx = px - catPos.x - nodeDragOff.x;
+      let ny = py - catPos.y - nodeDragOff.y;
+      // Clamp to inside category bubble
+      const cat = state.categories.find(c => c.id === d.cat);
+      const nodeCount = state.nodes.filter(n => n.cat === d.cat).length;
+      const maxR = getCatR(nodeCount, cat?.size || 1) - NODE_R - 6;
+      const dist = Math.sqrt(nx*nx + ny*ny);
+      if (dist > maxR) { nx = nx/dist*maxR; ny = ny/dist*maxR; }
+      // Persist on state node
+      const sn = state.nodes.find(n => n.id === d.id);
+      if (sn) { sn.manualX = nx; sn.manualY = ny; }
+      nodeLocalPos[d.id] = {x: nx, y: ny};
+      // Move this node-g directly
+      d3.select(this.parentNode).attr("transform", `translate(${nx},${ny})`);
+      renderConnections();
+    })
+    .on("end", function() { if (nodeMoved) saveState(); });
+
   // Node circles
   groups.each(function(catD) {
     const g = d3.select(this);
@@ -682,14 +735,15 @@ function renderBubbles() {
       .attr("fill", d => d.textColor || "#fff").attr("pointer-events", "none")
       .text(d => d.label.length > 11 ? d.label.slice(0,10) + "…" : d.label);
 
-    // Invisible larger hit target
+    // Invisible larger hit target (also handles node drag)
     ngs.append("circle")
       .attr("r", NODE_R + 2).attr("fill", "transparent").attr("stroke", "none")
-      .style("cursor", "pointer")
+      .style("cursor", d => connectMode ? "crosshair" : "grab")
+      .call(nodeDrag)
       .on("click", function(event, d) {
+        if (nodeMoved) return; // drag just ended, suppress click
         event.stopPropagation();
         if (movingNode) {
-          // Clicking a node while moving cancels the move
           movingNode = null; clearFloatingNode(); updateMoveBanner(); renderAll();
           return;
         }
@@ -699,9 +753,12 @@ function renderBubbles() {
       .on("dblclick", function(event, d) {
         event.stopPropagation();
         if (connectMode) return;
+        // Clear manual position so node auto-places in new category
+        const sn = state.nodes.find(n => n.id === d.id);
+        if (sn) { delete sn.manualX; delete sn.manualY; }
         movingNode = d.id;
         updateMoveBanner();
-        renderAll(); // dim the node in place
+        renderAll();
       })
       .on("mouseover", function(event, d) {
         showTip(event,
@@ -710,7 +767,7 @@ function renderBubbles() {
             ? (connectSource
                 ? connectSource === d.id ? "Click to cancel" : `Connect → ${d.label}`
                 : `Start from ${d.label}`)
-            : `${d.label} · click to edit · double-click to move`);
+            : `${d.label} · drag to reposition · click to edit · dbl-click to move`);
       })
       .on("mousemove", moveTip)
       .on("mouseout",  hideTip);
@@ -754,20 +811,20 @@ function renderConnections() {
 
     const cg = gConns.append("g").attr("class", "conn-g");
 
-    cg.append("path").attr("d", pathD)
+    cg.append("path").attr("class","conn-line").attr("d", pathD)
       .attr("fill","none").attr("stroke","#b8b0a8").attr("stroke-width", 1.8)
-      .attr("marker-end", null);
+      .attr("marker-end", "url(#arrowhead)");
 
     // Hit area + hover
     cg.append("path").attr("d", pathD)
       .attr("fill","none").attr("stroke","transparent").attr("stroke-width", 14)
       .style("cursor","pointer")
       .on("mouseover", function() {
-        cg.select("path").attr("stroke","#7a6e66");
+        cg.select(".conn-line").attr("stroke","#7a6e66");
         cg.select(".del-btn").style("display", null);
       })
       .on("mouseout", function() {
-        cg.select("path").attr("stroke","#b8b0a8");
+        cg.select(".conn-line").attr("stroke","#b8b0a8");
         cg.select(".del-btn").style("display","none");
       })
       .on("click", function(event) {
@@ -794,9 +851,14 @@ function renderConnections() {
 function curvePath(p1, p2) {
   const dx = p2.x-p1.x, dy = p2.y-p1.y;
   const len = Math.sqrt(dx*dx+dy*dy) || 1;
-  const c = Math.min(55, len*0.28);
-  const mx = (p1.x+p2.x)/2, my = (p1.y+p2.y)/2;
-  return `M${p1.x} ${p1.y} Q${mx-dy/len*c} ${my+dx/len*c} ${p2.x} ${p2.y}`;
+  const off = NODE_R + 4;
+  // Start/end at node edges, not centers
+  const sx = p1.x + dx/len * off, sy = p1.y + dy/len * off;
+  const ex = p2.x - dx/len * off, ey = p2.y - dy/len * off;
+  // Larger minimum curve so intra-category connections arc visibly
+  const c = Math.max(NODE_R * 2, Math.min(55, len * 0.35));
+  const smx = (sx+ex)/2, smy = (sy+ey)/2;
+  return `M${sx} ${sy} Q${smx-dy/len*c} ${smy+dx/len*c} ${ex} ${ey}`;
 }
 
 function deleteConnection(id) {
