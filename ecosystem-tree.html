@@ -363,6 +363,37 @@
   </div>
 </div>
 
+<!-- Connection Modal -->
+<div class="modal-overlay" id="conn-modal">
+  <div class="modal">
+    <h2>Edit Connection</h2>
+    <div class="field">
+      <label>Label (optional)</label>
+      <input type="text" id="conn-label-input" placeholder="e.g. syncs to"
+        onkeydown="if(event.key==='Enter')saveConnection()">
+    </div>
+    <div class="field">
+      <label>Direction</label>
+      <select id="conn-dir-select"></select>
+    </div>
+    <div class="field">
+      <label>Arc curve</label>
+      <div class="range-row">
+        <input type="range" id="conn-arc-slider" min="-1.5" max="1.5" step="0.1" value="1"
+          oninput="document.getElementById('conn-arc-val').textContent = parseFloat(this.value).toFixed(1)">
+        <span class="range-val" id="conn-arc-val">1.0</span>
+      </div>
+    </div>
+    <div class="modal-actions" style="justify-content:space-between">
+      <button class="btn" style="border-color:var(--danger);color:var(--danger)" onclick="deleteConnFromModal()">Delete</button>
+      <span style="display:flex;gap:8px">
+        <button class="btn" onclick="closeModal('conn-modal')">Cancel</button>
+        <button class="btn primary" onclick="saveConnection()">Save</button>
+      </span>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -392,6 +423,7 @@ function getCatR(nodeCount, size) {
 let selectedColor  = PALETTE[0];
 let editingCatId   = null;
 let editingNodeId  = null;
+let editingConnId  = null;
 let selectedCatId  = null;
 let connectMode    = false;
 let connectSource  = null; // nodeId
@@ -562,7 +594,7 @@ function initSVG() {
   // Arrowhead marker
   svgEl.append("defs").html(`
     <marker id="arrowhead" viewBox="0 0 10 10" refX="8" refY="5"
-      markerWidth="5" markerHeight="5" orient="auto">
+      markerWidth="5" markerHeight="5" orient="auto-start-reverse">
       <path d="M 0 1 L 9 5 L 0 9 z" fill="context-stroke"/>
     </marker>
   `);
@@ -807,73 +839,145 @@ function renderConnections() {
     const p2 = getNodeWorldPos(conn.to);
     if (!p1 || !p2) return;
 
-    const pathD = curvePath(p1, p2);
-    const mx = (p1.x + p2.x) / 2;
-    const my = (p1.y + p2.y) / 2;
-    const dx = p2.x - p1.x, dy = p2.y - p1.y;
-    const len = Math.sqrt(dx*dx + dy*dy) || 1;
-    const curve = Math.min(50, len * 0.25);
-    const midX = mx + (-dy/len)*curve*0.5;
-    const midY = my + (dx/len)*curve*0.5;
+    const arc   = conn.arc !== undefined ? conn.arc : 1;
+    const dir   = conn.dir || "to";
+    const label = conn.label || "";
+    const g = connGeom(p1, p2, arc);
 
     // Visible path in gConns (renders under bubbles — visual only)
     const cg = gConns.append("g").attr("class", "conn-g");
-    cg.append("path").attr("class","conn-line").attr("d", pathD)
+    cg.append("path").attr("class","conn-line").attr("d", g.d)
       .attr("fill","none").attr("stroke","#b8b0a8").attr("stroke-width", 1.8)
-      .attr("marker-end", "url(#arrowhead)")
+      .attr("marker-end",   (dir === "to"   || dir === "both") ? "url(#arrowhead)" : null)
+      .attr("marker-start", (dir === "from" || dir === "both") ? "url(#arrowhead)" : null)
       .style("pointer-events", "none");
 
-    // Hit area + delete button in gConnHits (renders above bubbles — interactive)
+    // Label at curve midpoint (above bubbles so it stays readable)
+    if (label) {
+      const lg = gConnHits.append("g").attr("class","conn-label-g")
+        .attr("transform", `translate(${g.midX},${g.midY})`)
+        .style("cursor","pointer")
+        .on("click", function(event){ event.stopPropagation(); openEditConnection(conn.id); });
+      const txt = lg.append("text")
+        .attr("text-anchor","middle").attr("dominant-baseline","middle")
+        .attr("font-size","10px").attr("font-weight","600")
+        .attr("fill","#5a534d").text(label);
+      let bb = null; try { bb = txt.node().getBBox(); } catch(e) {}
+      if (bb) {
+        lg.insert("rect", "text")
+          .attr("x", bb.x - 5).attr("y", bb.y - 2)
+          .attr("width", bb.width + 10).attr("height", bb.height + 4)
+          .attr("rx", 7).attr("fill", "#fff")
+          .attr("stroke", "#e0ddd8").attr("stroke-width", 1);
+      }
+    }
+
+    // Hit area + edit affordance in gConnHits (renders above bubbles — interactive)
     const hg = gConnHits.append("g").attr("class", "conn-hit-g");
 
-    hg.append("path").attr("d", pathD)
+    hg.append("path").attr("d", g.d)
       .attr("fill","none").attr("stroke","transparent").attr("stroke-width", 14)
       .style("cursor","pointer")
       .on("mouseover", function() {
         cg.select(".conn-line").attr("stroke","#7a6e66");
-        hg.select(".del-btn").style("display", null);
+        hg.select(".edit-btn").style("display", null);
       })
       .on("mouseout", function() {
         cg.select(".conn-line").attr("stroke","#b8b0a8");
-        hg.select(".del-btn").style("display","none");
+        hg.select(".edit-btn").style("display","none");
       })
       .on("click", function(event) {
         event.stopPropagation();
-        deleteConnection(conn.id);
+        openEditConnection(conn.id);
       });
 
-    // Delete dot at midpoint
-    const delG = hg.append("g")
-      .attr("class","del-btn")
-      .attr("transform", `translate(${midX},${midY})`)
-      .style("display","none")
-      .style("cursor","pointer")
-      .on("click", function(event) { event.stopPropagation(); deleteConnection(conn.id); });
-    delG.append("circle").attr("r",9).attr("fill","#fff").attr("stroke","#ccc").attr("stroke-width",1);
-    delG.append("text").attr("text-anchor","middle").attr("dominant-baseline","middle")
-      .attr("font-size","11px").attr("fill","#888").text("✕");
+    // Edit dot at midpoint (only when no label already occupies it)
+    if (!label) {
+      const editG = hg.append("g")
+        .attr("class","edit-btn")
+        .attr("transform", `translate(${g.midX},${g.midY})`)
+        .style("display","none")
+        .style("cursor","pointer")
+        .on("click", function(event) { event.stopPropagation(); openEditConnection(conn.id); });
+      editG.append("circle").attr("r",9).attr("fill","#fff").attr("stroke","#ccc").attr("stroke-width",1);
+      editG.append("text").attr("text-anchor","middle").attr("dominant-baseline","middle")
+        .attr("font-size","10px").attr("fill","#888").text("✎");
+    }
   });
 
   // Keep ghost line on top
   ghostLine.raise();
 }
 
-function curvePath(p1, p2) {
+// Geometry for a connection. `arc` is a signed factor: +1 = current bow,
+// -1 = mirror to the other side, 0 = straight line. Returns the path string,
+// control point, and the point on the curve at t=0.5 (for labels/buttons).
+function connGeom(p1, p2, arc = 1) {
   const dx = p2.x-p1.x, dy = p2.y-p1.y;
   const len = Math.sqrt(dx*dx+dy*dy) || 1;
   const off = NODE_R + 4;
   // Start/end at node edges, not centers
   const sx = p1.x + dx/len * off, sy = p1.y + dy/len * off;
   const ex = p2.x - dx/len * off, ey = p2.y - dy/len * off;
-  // Larger minimum curve so intra-category connections arc visibly
-  const c = Math.max(NODE_R * 2, Math.min(55, len * 0.35));
+  // Base curve magnitude, scaled (and signed) by arc
+  const cMag = Math.max(NODE_R * 2, Math.min(55, len * 0.35)) * arc;
   const smx = (sx+ex)/2, smy = (sy+ey)/2;
-  return `M${sx} ${sy} Q${smx-dy/len*c} ${smy+dx/len*c} ${ex} ${ey}`;
+  const cpx = smx - dy/len*cMag, cpy = smy + dx/len*cMag;
+  const midX = 0.25*sx + 0.5*cpx + 0.25*ex;
+  const midY = 0.25*sy + 0.5*cpy + 0.25*ey;
+  return { d: `M${sx} ${sy} Q${cpx} ${cpy} ${ex} ${ey}`, cpx, cpy, midX, midY };
 }
 
 function deleteConnection(id) {
   state.connections = state.connections.filter(c => c.id !== id);
   persist();
+}
+
+// ── Connection editing ────────────────────────────────────────────────────────
+
+function openEditConnection(id) {
+  const c = state.connections.find(x => x.id === id);
+  if (!c) return;
+  editingConnId = id;
+  const fromNode = state.nodes.find(n => n.id === c.from);
+  const toNode   = state.nodes.find(n => n.id === c.to);
+  const fl = fromNode ? fromNode.label : "?";
+  const tl = toNode   ? toNode.label   : "?";
+
+  const sel = document.getElementById("conn-dir-select");
+  sel.innerHTML = "";
+  [["to", `${fl} → ${tl}`], ["from", `${fl} ← ${tl}`], ["both", `${fl} ↔ ${tl}`]]
+    .forEach(([v, t]) => {
+      const o = document.createElement("option");
+      o.value = v; o.textContent = t;
+      sel.appendChild(o);
+    });
+  sel.value = c.dir || "to";
+
+  document.getElementById("conn-label-input").value = c.label || "";
+  const arc = c.arc !== undefined ? c.arc : 1;
+  document.getElementById("conn-arc-slider").value = arc;
+  document.getElementById("conn-arc-val").textContent = parseFloat(arc).toFixed(1);
+  openModal("conn-modal");
+  setTimeout(() => document.getElementById("conn-label-input").focus(), 50);
+}
+
+function saveConnection() {
+  const c = state.connections.find(x => x.id === editingConnId);
+  if (!c) { closeModal("conn-modal"); return; }
+  c.label = document.getElementById("conn-label-input").value.trim();
+  c.dir   = document.getElementById("conn-dir-select").value;
+  c.arc   = parseFloat(document.getElementById("conn-arc-slider").value);
+  closeModal("conn-modal");
+  toast("Connection updated");
+  persist();
+}
+
+function deleteConnFromModal() {
+  if (!editingConnId) { closeModal("conn-modal"); return; }
+  const id = editingConnId;
+  closeModal("conn-modal");
+  deleteConnection(id);
 }
 
 function updateGhostLine() {
@@ -973,7 +1077,7 @@ function handleConnectClick(nodeId) {
       (c.from === connectSource && c.to === nodeId) ||
       (c.from === nodeId && c.to === connectSource));
     if (!exists) {
-      state.connections.push({ id: uid(), from: connectSource, to: nodeId });
+      state.connections.push({ id: uid(), from: connectSource, to: nodeId, label: "", dir: "to", arc: 1 });
       toast("Connection added");
     } else {
       toast("Already connected");
@@ -1050,11 +1154,15 @@ function renderConnList() {
     const fromNode = state.nodes.find(n => n.id === c.from);
     const toNode   = state.nodes.find(n => n.id === c.to);
     if (!fromNode || !toNode) return;
+    const dir   = c.dir || "to";
+    const glyph = dir === "both" ? "↔" : dir === "from" ? "←" : "→";
     const div = document.createElement("div");
     div.className = "conn-item";
+    div.style.cursor = "pointer";
+    div.onclick = () => openEditConnection(c.id);
     div.innerHTML = `
-      <span class="conn-item-label"><b>${fromNode.label}</b> → <b>${toNode.label}</b></span>
-      <span class="conn-item-del" onclick="deleteConnection('${c.id}')">✕</span>`;
+      <span class="conn-item-label"><b>${fromNode.label}</b> ${glyph} <b>${toNode.label}</b>${c.label ? ` · <i>${c.label}</i>` : ""}</span>
+      <span class="conn-item-del" onclick="event.stopPropagation();deleteConnection('${c.id}')">✕</span>`;
     el.appendChild(div);
   });
 }
