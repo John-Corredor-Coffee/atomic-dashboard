@@ -661,8 +661,9 @@ function renderBubbles() {
     .clickDistance(5)
     .filter(function(event) {
       if (connectMode || movingNode) return false;
-      // Stop propagation here (earliest hook) so category drag doesn't also fire
-      event.sourceEvent.stopPropagation();
+      // Stop propagation here (earliest hook) so category drag doesn't also fire.
+      // In d3-drag's filter the argument IS the native event (no .sourceEvent wrapper).
+      event.stopPropagation();
       return true;
     })
     .on("start", function(event, d) {
